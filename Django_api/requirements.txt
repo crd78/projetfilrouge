@@ -1,3 +1,5 @@
 Django
 djangorestframework
 gunicorn
+mysqlclient
+djangorestframework-simplejwt

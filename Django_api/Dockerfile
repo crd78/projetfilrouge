@@ -1,18 +1,14 @@
-# Utiliser une image Python officielle
 FROM python:3.10
 
-# Définir le répertoire de travail
-WORKDIR /app
+RUN apt-get update && apt-get install -y default-mysql-client
 
-# Copier les fichiers de l'application
+WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copier tout le code source
 COPY . .
 
-# Exposer le port de Django
-EXPOSE 8000
+# Rendre le script d'attente exécutable
+RUN chmod +x wait-for-db.sh
 
-# Commande de démarrage
+EXPOSE 8000
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "django_project.wsgi:application"]
