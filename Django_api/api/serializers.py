@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Product, UserProfile
+from .models import Product, UserProfile, Client, Devis, Commercial, Ristourne
+
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,3 +45,28 @@ class UserSerializer(serializers.ModelSerializer):
         )
         
         return user
+    
+
+class ClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client       
+        fields = ['IdClient', 'Nom', 'Prenom', 'Fonction', 'CodePostal', 'Ville', 
+                   'Adresse', 'Telephone', 'Email', 'RaisonSociale', 'SIRET', 
+                   'created_at', 'updated_at']
+
+class CommercialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Commercial
+        fields = ['idCommercial', 'Nom', 'Prenom', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+class DevisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Devis
+        fields = ['IdDevis', 'IdClient', 'idCommercial', 'MontantTotalHT', 'MontantTotalTTC', 'DateCreation', 'DateMiseAJour']
+        read_only_fields = ['DateCreation', 'DateMiseAJour']
+
+class RistourneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ristourne
+        fields = ['idRistourne', 'DateRistourne', 'IdClient', 'IdCommercial', 'Montant', 'Commentaire']
