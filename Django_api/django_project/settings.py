@@ -91,8 +91,8 @@ DATABASES = {
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            # Force TCP/IP connection for MySQLdb connector
-            'unix_socket': '' if os.environ.get('DOCKER_CONTAINER') else None,
+            # Toujours utiliser une chaîne vide plutôt que None
+            'unix_socket': '',
         },
     }
 }

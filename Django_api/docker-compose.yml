@@ -9,20 +9,38 @@ services:
       - .:/app
     environment:
       - DEBUG=True
-      - DOCKER_CONTAINER=1  # This will set the environment variable
+      - DOCKER_CONTAINER=1
     depends_on:
       - db
     command: >
       sh -c "./wait-for-db.sh && python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 django_project.wsgi:application"
   
+  # Ajoutez ce nouveau service
+  db-setup:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - DOCKER_CONTAINER=1
+    depends_on:
+      - db
+    command: >
+      sh -c "
+      echo 'Attente de MySQL...' &&
+      sleep 10 &&
+      echo 'Création de la base de données...' &&
+      mysql -h db -u root -e 'CREATE DATABASE IF NOT EXISTS django_api_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;' &&
+      python manage.py migrate &&
+      echo 'Configuration de la base de données terminée!'"
+  
   db:
     image: mysql:8.0
     ports:
       - "3307:3306"
     environment:
-      - MYSQL_DATABASE=django_api_db
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=django_api_db
     volumes:
       - mysql_data:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password
