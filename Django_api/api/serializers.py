@@ -1,12 +1,21 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Product, UserProfile, Client, Devis, Commercial, Ristourne
+from .models import (
+    Product, UserProfile, Client, Commercial, Devis, 
+    Commande, Ristourne, Fournisseur, Entrepot, StockMouvement,
+    Vehicule, Transport, Livreur, Livraison,
+    DetailsCommande, Maintenance, Collaborateur  # Ajout de nouvelles classes
+)
+
+
 
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'price', 'stock', 'created_at', 'updated_at']
+        fields = ['IdProduit', 'NomProduit', 'TypeProduit', 'PrixHT', 'PrixTTC', 
+                 'QuantiteStock', 'IdMouvement', 'DateCreation', 'DateMiseAJour']
+        read_only_fields = ['DateCreation', 'DateMiseAJour']
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,3 +79,70 @@ class RistourneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ristourne
         fields = ['idRistourne', 'DateRistourne', 'IdClient', 'IdCommercial', 'Montant', 'Commentaire']
+
+class CommandeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Commande
+        fields = ['IdCommande', 'IdClient', 'DateCommande', 'Statut', 
+                  'MontantTotalHT', 'MontantTotalTTC', 'DateMiseAJour']
+        read_only_fields = ['DateCommande', 'DateMiseAJour']
+
+class EntrepotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Entrepot
+        fields = ['IdEntrepot', 'IdProduit', 'Localisation', 'CapaciteStock', 
+                 'IdMouvement', 'DateCreation', 'DateMiseAJour']
+        read_only_fields = ['DateCreation', 'DateMiseAJour']
+
+class VehiculeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicule
+        fields = ['IdVehicule', 'TypeVehicule', 'Statut', 'LastDateMaintenance', 
+                 'Immatriculation', 'DateCreation', 'DateMiseAJour']
+        read_only_fields = ['DateCreation', 'DateMiseAJour']
+
+class TransportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transport
+        fields = ['IdTransport', 'CoutKilometre', 'FraisFixes', 'IdVehicule',
+                 'DateDebut', 'DateFin', 'Distance', 'CoutTotal', 'CommissionChauffeur',
+                 'Commentaire', 'DateCreation', 'DateMiseAJour']
+        read_only_fields = ['DateCreation', 'DateMiseAJour', 'CoutTotal']
+
+class LivreurSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Livreur
+        fields = ['IdLivreur', 'Nom', 'Prenom', 'IdVehicule', 
+                 'Telephone', 'Email', 'Adresse', 'CodePostal', 'Ville',
+                 'DateEmbauche', 'Statut', 'DateCreation', 'DateMiseAJour']
+        read_only_fields = ['DateCreation', 'DateMiseAJour']
+
+class DetailsCommandeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DetailsCommande
+        fields = ['IdCommande', 'IdProduit', 'Quantite']
+
+class LivraisonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Livraison
+        fields = ['IdLivraison', 'IdCommande', 'IdTransport', 'Statut',
+                 'IdEntrepot', 'IdVehicule', 'DatePrevue', 'DateLivraison',
+                 'Commentaire', 'DateCreation', 'DateMiseAJour']
+        read_only_fields = ['DateCreation', 'DateMiseAJour']
+
+class CollaborateurSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Collaborateur
+        fields = ['IdCollaborateur', 'Nom', 'Prenom', 'Specialite',
+                  'Telephone', 'Email', 'DateEmbauche', 'Actif',
+                  'DateCreation', 'DateMiseAJour']
+        read_only_fields = ['DateCreation', 'DateMiseAJour']
+
+class MaintenanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Maintenance
+        fields = ['IdMaintenance', 'IdCollaborateur', 'DateMaintenance', 'IdVehicule',
+                  'TypeMaintenance', 'Description', 'CoutMaintenance', 'KilometrageVehicule',
+                  'DureeMaintenance', 'StatutMaintenance', 'DateFinMaintenance',
+                  'DateCreation', 'DateMiseAJour']
+        read_only_fields = ['DateCreation', 'DateMiseAJour']
