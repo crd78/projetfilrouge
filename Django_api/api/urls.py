@@ -100,11 +100,4 @@ urlpatterns = [
     path('collaborateurs/<int:collaborateur_id>/maintenances/', collaborateur_maintenances),
     path('maintenances/<int:pk>/statut/<str:statut>/', update_maintenance_status),
     path('maintenances/statut/<str:statut>/', maintenances_by_status),
-
-    # Routes collaborateurs (séparées des maintenances)
-    path('collaborateurs/', collaborateur_list),
-    path('collaborateurs/<int:pk>/', collaborateur_detail),
-    path('collaborateurs/role/<str:role>/', collaborateurs_by_role),  # Nouvelle route par rôle
-
-
 ]
