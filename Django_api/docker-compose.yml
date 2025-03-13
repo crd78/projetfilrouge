@@ -12,11 +12,14 @@ services:
       - DOCKER_CONTAINER=1
     depends_on:
       - db
+      - db-setup
     command: >
-      sh -c "./wait-for-db.sh && python manage.py migrate &&
+      sh -c "sleep 15 && 
+             echo 'Démarrage du serveur Django...' &&
+             python manage.py migrate &&
              gunicorn --bind 0.0.0.0:8000 django_project.wsgi:application"
   
-  # Ajoutez ce nouveau service
+  # Service de configuration de la base de données
   db-setup:
     build: .
     volumes:

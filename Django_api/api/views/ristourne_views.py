@@ -47,12 +47,12 @@ def ristourne_detail(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
-def client_ristournes_list(request, client_id):
+def devis_ristournes_list(request, devis_id):
     """
-    Liste toutes les ristournes d'un client spécifique
+    Liste toutes les ristournes d'un devis spécifique
     """
     try:
-        ristournes = Ristourne.objects.filter(IdClient=client_id)
+        ristournes = Ristourne.objects.filter(IdDevis=devis_id)
         serializer = RistourneSerializer(ristournes, many=True)
         return Response(serializer.data)
     except Exception as e:
