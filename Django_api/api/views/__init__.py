@@ -6,7 +6,7 @@ from .commercial_views import commercial_list, commercial_detail, commercial_dev
 from .devis_views import devis_list, devis_detail, client_devis_list
 from .ristourne_views import (
     ristourne_list, ristourne_detail, 
-    client_ristournes_list, commercial_ristournes_list
+    devis_ristournes_list, commercial_ristournes_list  # Changé client_ristournes_list en devis_ristournes_list
 )
 from .commande_views import (
     commande_list, commande_detail, 

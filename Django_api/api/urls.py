@@ -5,7 +5,7 @@ from .views import (
     client_list, client_detail,
     devis_list, devis_detail, client_devis_list,
     commercial_list, commercial_detail, commercial_devis_list,
-    ristourne_list, ristourne_detail, client_ristournes_list, commercial_ristournes_list,
+    ristourne_list, ristourne_detail, commercial_ristournes_list,
     commande_list, commande_detail, client_commandes_list, commandes_by_status,
     entrepot_list, entrepot_detail, produit_entrepots,
     vehicule_list, vehicule_detail, vehicule_transports, vehicules_by_status,
@@ -20,6 +20,7 @@ from .views import (
     vehicule_maintenances, collaborateur_maintenances,
     update_maintenance_status, maintenances_by_status
 )
+from .views.ristourne_views import devis_ristournes_list
 
 urlpatterns = [
     # Routes générales
@@ -49,7 +50,7 @@ urlpatterns = [
     # Routes ristourne
     path('ristournes/', ristourne_list),
     path('ristournes/<int:pk>/', ristourne_detail),
-    path('clients/<int:client_id>/ristournes/', client_ristournes_list),
+    path('devis/<int:devis_id>/ristournes/', devis_ristournes_list),
     path('commerciaux/<int:commercial_id>/ristournes/', commercial_ristournes_list),
 
     # Routes commandes

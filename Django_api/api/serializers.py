@@ -78,7 +78,7 @@ class DevisSerializer(serializers.ModelSerializer):
 class RistourneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ristourne
-        fields = ['idRistourne', 'DateRistourne', 'IdClient', 'IdCommercial', 'Montant', 'Commentaire']
+        fields = ['idRistourne', 'DateRistourne', 'IdDevis', 'IdCommercial', 'MontantRistourne', 'Commentaire']
 
 class CommandeSerializer(serializers.ModelSerializer):
     class Meta:
