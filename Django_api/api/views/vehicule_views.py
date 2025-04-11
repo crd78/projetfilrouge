@@ -69,3 +69,56 @@ def vehicules_by_status(request, status_value):
         return Response(serializer.data)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+def vehicule_maintenance(request, id):
+    """
+    Permet de mettre un véhicule en maintenance.
+    """
+    try:
+        vehicule = Vehicule.objects.get(pk=id)
+        
+        # Vérifier si le véhicule n'est pas déjà en maintenance
+        if vehicule.Statut == 'EN_MAINTENANCE':
+            return Response({
+                "error": "Ce véhicule est déjà en maintenance"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Mettre à jour le statut du véhicule
+        vehicule.Statut = 'EN_MAINTENANCE'
+        vehicule.save()
+        
+        # Créer une entrée de maintenance si des informations sont fournies
+        if 'maintenance_data' in request.data:
+            from ..models import Maintenance
+            from datetime import datetime
+            
+            maintenance_data = request.data['maintenance_data']
+            maintenance = Maintenance(
+                IdVehicule=vehicule,
+                DateMaintenance=datetime.now(),
+                TypeMaintenance=maintenance_data.get('type', 'REVISION'),
+                Description=maintenance_data.get('description', ''),
+                StatutMaintenance='PLANIFIEE',
+                IdCollaborateur_id=maintenance_data.get('collaborateur_id')
+            )
+            maintenance.save()
+            
+            from ..serializers import MaintenanceSerializer
+            maintenance_serializer = MaintenanceSerializer(maintenance)
+            
+            return Response({
+                "message": "Véhicule mis en maintenance avec succès",
+                "vehicule": VehiculeSerializer(vehicule).data,
+                "maintenance": maintenance_serializer.data
+            })
+        
+        return Response({
+            "message": "Véhicule mis en maintenance avec succès",
+            "vehicule": VehiculeSerializer(vehicule).data
+        })
+        
+    except Vehicule.DoesNotExist:
+        return Response({"error": "Véhicule non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

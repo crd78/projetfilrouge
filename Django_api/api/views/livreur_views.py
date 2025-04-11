@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Livreur, Vehicule, Transport
 from ..serializers import LivreurSerializer, TransportSerializer
+from datetime import datetime
 
 @api_view(['GET', 'POST'])
 def livreur_list(request):
@@ -90,3 +91,124 @@ def assign_vehicle_to_livreur(request, livreur_id, vehicule_id):
     livreur.IdVehicule = vehicule
     livreur.save()
     return Response({"message": f"Vehicle {vehicule.IdVehicule} assigned to livreur {livreur.Prenom} {livreur.Nom}."})
+
+@api_view(['POST'])
+def livreur_mission(request, id):
+    """
+    Permet à un livreur de recevoir une mission de livraison avec QR code et détails du trajet.
+    """
+    try:
+        livreur = Livreur.objects.get(pk=id)
+        
+        # Traitement de la mission (à adapter selon votre logique métier)
+        mission_data = request.data
+        
+        # Si la mission inclut un transport, vous pourriez vouloir l'associer au livreur
+        if 'transport_id' in mission_data:
+            try:
+                transport = Transport.objects.get(pk=mission_data['transport_id'])
+                # Association logique
+            except Transport.DoesNotExist:
+                return Response({"error": "Transport non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Générer des données de simulation pour la mission
+        mission_response = {
+            "message": f"Mission assignée au livreur {livreur.Prenom} {livreur.Nom}",
+            "livreur_id": livreur.IdLivreur,
+            "details_trajet": {
+                "adresse_depart": mission_data.get('adresse_depart', 'Entrepôt principal'),
+                "adresse_destination": mission_data.get('adresse_destination', 'Client'),
+                "distance_estimee": mission_data.get('distance', '10 km'),
+                "duree_estimee": mission_data.get('duree', '30 minutes')
+            },
+            "qr_code": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="  # QR code factice
+        }
+        
+        return Response(mission_response)
+        
+    except Livreur.DoesNotExist:
+        return Response({"error": "Livreur non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+def livreur_livraison_termine(request, id):
+    """
+    Permet à un livreur de marquer une livraison comme terminée après livraison au client.
+    """
+    try:
+        livreur = Livreur.objects.get(pk=id)
+        
+        # Traitement de la fin de livraison
+        livraison_data = request.data
+        
+        if 'livraison_id' not in livraison_data:
+            return Response({"error": "ID de livraison manquant"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            from ..models import Livraison
+            livraison = Livraison.objects.get(pk=livraison_data['livraison_id'])
+            livraison.Statut = 'LIVREE'
+            from datetime import datetime
+            livraison.DateLivraison = datetime.now()
+            livraison.save()
+            
+            # Mise à jour du statut de la commande associée si nécessaire
+            commande = livraison.IdCommande
+            commande.Statut = 'LIVREE'
+            commande.save()
+            
+            return Response({
+                "message": f"Livraison #{livraison.IdLivraison} marquée comme terminée par le livreur {livreur.Prenom} {livreur.Nom}",
+                "date_livraison": livraison.DateLivraison,
+                "statut": livraison.Statut
+            })
+            
+        except Livraison.DoesNotExist:
+            return Response({"error": "Livraison non trouvée"}, status=status.HTTP_404_NOT_FOUND)
+            
+    except Livreur.DoesNotExist:
+        return Response({"error": "Livreur non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def livreur_qr_code(request, id):
+    """
+    Permet à un livreur de scanner un QR code lors de la livraison pour valider la livraison.
+    """
+    try:
+        livreur = Livreur.objects.get(pk=id)
+        
+        # Simulation d'un scan de QR code
+        qr_token = request.query_params.get('token', None)
+        livraison_id = request.query_params.get('livraison_id', None)
+        
+        if not qr_token or not livraison_id:
+            return Response({"error": "Token QR et ID de livraison requis"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validation du QR code (à adapter selon votre logique)
+        # Dans un cas réel, vous vérifieriez si le token correspond à celui stocké pour cette livraison
+        
+        try:
+            from ..models import Livraison
+            livraison = Livraison.objects.get(pk=livraison_id)
+            
+            # Mise à jour de la livraison pour indiquer qu'elle a été validée par QR code
+            livraison.Commentaire = f"{livraison.Commentaire}\nQR code validé le {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            livraison.save()
+            
+            return Response({
+                "message": "QR code validé avec succès",
+                "livreur": f"{livreur.Prenom} {livreur.Nom}",
+                "livraison_id": livraison.IdLivraison,
+                "validation_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            })
+            
+        except Livraison.DoesNotExist:
+            return Response({"error": "Livraison non trouvée"}, status=status.HTTP_404_NOT_FOUND)
+            
+    except Livreur.DoesNotExist:
+        return Response({"error": "Livreur non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,0 +1,59 @@
+2025-04-11 12:11:23,234 - INFO - === INITIALISATION DE L'AUTHENTIFICATION ===
+2025-04-11 12:11:23,739 - INFO - Utilisateur créé: testuser
+2025-04-11 12:11:23,795 - INFO - Token d'accès généré: eyJhbGciOiJIUzI...
+2025-04-11 12:11:23,795 - INFO - Client API configuré avec JWT
+2025-04-11 12:11:23,795 - INFO - === DÉMARRAGE DES TESTS CLIENT ===
+2025-04-11 12:11:23,799 - INFO - Client de test créé: Dupont Jean (ID: 1)
+2025-04-11 12:11:23,799 - INFO - TEST: Récupération des détails du client ID=1
+2025-04-11 12:11:23,871 - INFO - Credentials réinitialisés
+2025-04-11 12:11:23,871 - INFO - === FIN DES TESTS CLIENT ===
+
+2025-04-11 12:11:23,872 - INFO - === INITIALISATION DE L'AUTHENTIFICATION ===
+2025-04-11 12:11:24,380 - INFO - Utilisateur créé: testuser
+2025-04-11 12:11:24,380 - INFO - Token d'accès généré: eyJhbGciOiJIUzI...
+2025-04-11 12:11:24,380 - INFO - Client API configuré avec JWT
+2025-04-11 12:11:24,380 - INFO - === DÉMARRAGE DES TESTS CLIENT ===
+2025-04-11 12:11:24,386 - INFO - Client de test créé: Dupont Jean (ID: 2)
+2025-04-11 12:11:24,386 - INFO - TEST: Inscription d'un nouveau client
+2025-04-11 12:11:24,407 - INFO - Credentials réinitialisés
+2025-04-11 12:11:24,408 - INFO - === FIN DES TESTS CLIENT ===
+
+2025-04-11 12:11:24,435 - INFO - === INITIALISATION DE L'AUTHENTIFICATION ===
+2025-04-11 12:11:24,960 - INFO - Utilisateur créé: testuser
+2025-04-11 12:11:24,976 - INFO - Token d'accès généré: eyJhbGciOiJIUzI...
+2025-04-11 12:11:24,976 - INFO - Client API configuré avec JWT
+2025-04-11 12:11:24,976 - INFO - === DÉMARRAGE DES TESTS COMMANDE ===
+2025-04-11 12:11:24,976 - INFO - Client créé: ID=4
+2025-04-11 12:11:24,976 - INFO - Commande créée: ID=1, montant=240.0€
+2025-04-11 12:11:24,976 - INFO - TEST: Récupération des détails de la commande ID=1
+2025-04-11 12:11:24,976 - INFO - En-tête d'authentification: 
+2025-04-11 12:11:24,996 - INFO - Credentials réinitialisés
+2025-04-11 12:11:24,996 - INFO - === FIN DES TESTS COMMANDE ===
+
+2025-04-11 12:11:24,998 - INFO - === INITIALISATION DE L'AUTHENTIFICATION ===
+2025-04-11 12:11:25,509 - INFO - Utilisateur créé: testuser
+2025-04-11 12:11:25,511 - INFO - Token d'accès généré: eyJhbGciOiJIUzI...
+2025-04-11 12:11:25,511 - INFO - Client API configuré avec JWT
+2025-04-11 12:11:25,511 - INFO - === DÉMARRAGE DES TESTS COMMANDE ===
+2025-04-11 12:11:25,514 - INFO - Client créé: ID=5
+2025-04-11 12:11:25,514 - INFO - Commande créée: ID=2, montant=240.0€
+2025-04-11 12:11:25,518 - INFO - TEST: Paiement de la commande ID=2
+2025-04-11 12:11:25,518 - INFO - État initial: commande non payée
+2025-04-11 12:11:25,535 - INFO - Commande payée: True, Date: 2025-04-11 12:11:25.524603+00:00
+2025-04-11 12:11:25,542 - INFO - Credentials réinitialisés
+2025-04-11 12:11:25,542 - INFO - === FIN DES TESTS COMMANDE ===
+
+2025-04-11 12:11:25,587 - INFO - === INITIALISATION DE L'AUTHENTIFICATION ===
+2025-04-11 12:11:26,089 - INFO - Utilisateur créé: testuser
+2025-04-11 12:11:26,089 - INFO - Token d'accès généré: eyJhbGciOiJIUzI...
+2025-04-11 12:11:26,089 - INFO - Client API configuré avec JWT
+2025-04-11 12:11:26,089 - INFO - === DÉMARRAGE DES TESTS DEVIS ===
+2025-04-11 12:11:26,089 - INFO - Client créé: ID=6
+2025-04-11 12:11:26,101 - INFO - Commercial créé: ID=7
+2025-04-11 12:11:26,105 - INFO - Devis créé: ID=1, montant=120.0€
+2025-04-11 12:11:26,105 - INFO - TEST: Récupération du devis ID=1
+2025-04-11 12:11:26,105 - INFO - Avec token valide
+2025-04-11 12:11:26,117 - INFO - Sans token
+2025-04-11 12:11:26,120 - INFO - Credentials réinitialisés
+2025-04-11 12:11:26,120 - INFO - === FIN DES TESTS DEVIS ===
+

@@ -48,7 +48,7 @@ class StockMouvement(models.Model):
         blank=True,
         related_name='mouvements_stock_fournisseur',
         verbose_name="Fournisseur",
-        limit_choices_to={'role': 5}  # Limiter aux personnes ayant le rôle Fournisseur
+        limit_choices_to={'role': 4}  # Limiter aux personnes ayant le rôle Fournisseur
     )
     Commentaire = models.TextField(blank=True, verbose_name="Commentaire")
     

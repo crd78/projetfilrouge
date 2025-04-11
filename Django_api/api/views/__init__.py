@@ -1,9 +1,7 @@
 # Importer toutes les vues
 from .user_views import register_user, user_list
 from .product_views import hello_world, item_list, product_list, product_detail
-from .client_views import client_list, client_detail
-from .personne_views import personne_list, personne_detail   # <-- ADD THIS IMPORT
-from .commercial_views import commercial_detail, commercial_devis_list
+from .personne_views import personne_list
 from .devis_views import devis_list, devis_detail, client_devis_list
 from .ristourne_views import (
     ristourne_list, ristourne_detail, 
@@ -34,11 +32,7 @@ from .details_commande_views import (
     details_commande_list, details_commande_detail,
     afficher_details_commande
 )
-# Séparation des vues de collaborateur et maintenance
-from .collaborateur_views import (
-    collaborateur_list, collaborateur_detail,
-    collaborateurs_by_role
-)
+
 from .maintenance_views import (
     maintenance_list, maintenance_detail,
     vehicule_maintenances, collaborateur_maintenances,

@@ -34,6 +34,8 @@ class Commande(models.Model):
         decimal_places=2,
         verbose_name="Montant total TTC"
     )
+    EstPayee = models.BooleanField(default=False, verbose_name="Est payée")  # Nouveau champ
+    DatePaiement = models.DateTimeField(null=True, blank=True, verbose_name="Date de paiement")  # Nouveau champ
     DateMiseAJour = models.DateTimeField(auto_now=True)
     
     def __str__(self):

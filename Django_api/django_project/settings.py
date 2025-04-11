@@ -88,7 +88,7 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '',
         'HOST': DB_HOST,
-        'PORT': '3306',
+        'PORT': '3307',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             # Toujours utiliser une chaîne vide plutôt que None
@@ -126,6 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 
 
 # Internationalization

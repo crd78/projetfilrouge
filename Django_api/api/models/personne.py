@@ -5,9 +5,8 @@ class Personne(models.Model):
     ROLE_CHOICES = [
         (1, 'Client'),
         (2, 'Commercial'),
-        (3, 'Livreur'),
-        (4, 'Collaborateur'),
-        (5, 'Fournisseur'),
+        (3, 'Collaborateur'),
+        (4, 'Fournisseur'),
     ]
     
     id = models.AutoField(primary_key=True)
@@ -29,7 +28,7 @@ class Personne(models.Model):
     date_miseajour = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        if self.role == 5 and self.raison_sociale:
+        if self.role == 4 and self.raison_sociale:
             return self.raison_sociale
         return f"{self.prenom} {self.nom} - {self.get_role_display()}"
     

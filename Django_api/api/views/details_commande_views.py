@@ -22,12 +22,12 @@ def details_commande_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def details_commande_detail(request, pk):
+def details_commande_detail(request, id):
     """
     Récupère, met à jour ou supprime un détail de commande
     """
     try:
-        detail = DetailsCommande.objects.get(pk=pk)
+        detail = DetailsCommande.objects.get(id=id)
     except DetailsCommande.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
