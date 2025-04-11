@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement du fichier .env
+load_dotenv()
 
 # Use 'db' in Docker, 'localhost' or '127.0.0.1' otherwise
 DB_HOST = 'db' if os.environ.get('DOCKER_CONTAINER') else 'localhost'
@@ -19,17 +23,13 @@ DB_HOST = 'db' if os.environ.get('DOCKER_CONTAINER') else 'localhost'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%(!oa-z=1k8sz66zuovg3veu-s!us1j-1+(_x29&sdhhbs&+pxo*geye'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
