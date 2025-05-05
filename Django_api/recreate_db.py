@@ -11,15 +11,16 @@ def recreate_database():
         try:
             # Connexion au serveur MySQL
             conn = MySQLdb.connect(
-                host="db",  # utilisez 'db' comme nom d'hôte dans Docker
+                host="db",
                 user="root",
                 passwd="",
-                port=3306
+                port=3306  # Port à l'intérieur du conteneur
             )
             cursor = conn.cursor()
             
             # Créer une nouvelle base de données
-            cursor.execute("CREATE DATABASE IF NOT EXISTS django_api_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
+            cursor.execute("DROP DATABASE IF EXISTS django_api_db;")
+            cursor.execute("CREATE DATABASE django_api_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
             print("Base de données créée avec succès")
             
             # Fermer la connexion

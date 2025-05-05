@@ -88,10 +88,9 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '',
         'HOST': DB_HOST,
-        'PORT': '3307',
+        'PORT': '3306',  # Changé de 3307 à 3306 à l'intérieur du conteneur
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            # Toujours utiliser une chaîne vide plutôt que None
             'unix_socket': '',
         },
     }
