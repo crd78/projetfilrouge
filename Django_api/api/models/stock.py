@@ -1,7 +1,7 @@
 from django.db import models
 from .product import Product
 from .commande import Commande
-from .fournisseur import Fournisseur
+from .personne import Personne  # Remplace Fournisseur par Personne
 
 class StockMouvement(models.Model):
     TYPE_CHOICES = [
@@ -20,7 +20,7 @@ class StockMouvement(models.Model):
         verbose_name="Produit"
     )
     IdEntrepot = models.ForeignKey(
-        'api.Entrepot',  # Utiliser une référence par chaîne au lieu d'importer directement
+        'api.Entrepot',  # Référence par chaîne pour éviter l'import circulaire
         on_delete=models.CASCADE,
         related_name='mouvements_stock',
         verbose_name="Entrepôt"
@@ -42,18 +42,19 @@ class StockMouvement(models.Model):
         verbose_name="Commande associée"
     )
     IdFournisseur = models.ForeignKey(
-        Fournisseur,
+        Personne,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='mouvements_stock',
-        verbose_name="Fournisseur"
+        related_name='mouvements_stock_fournisseur',
+        verbose_name="Fournisseur",
+        limit_choices_to={'role': 4}  # Limiter aux personnes ayant le rôle Fournisseur
     )
     Commentaire = models.TextField(blank=True, verbose_name="Commentaire")
     
     def __str__(self):
         mouvement_type = "+" if self.TypeMouvement == "ENTREE" else "-"
-        from .entrepot import Entrepot  # Import à l'intérieur de la méthode pour éviter l'import circulaire
+        from .entrepot import Entrepot  # Import à l'intérieur pour éviter l'import circulaire
         entrepot = Entrepot.objects.get(pk=self.IdEntrepot_id)
         return f"{self.DateMouvement.strftime('%Y-%m-%d')} - {mouvement_type}{self.Quantite} {self.IdProduit.NomProduit} ({entrepot.Localisation})"
     
@@ -73,9 +74,7 @@ class StockMouvement(models.Model):
             # Pour un inventaire, on remplace directement la quantité
             produit.QuantiteStock = self.Quantite
         
-        # Sauvegarde du produit avec la nouvelle quantité
         produit.save()
-        
         # Mise à jour de l'IdMouvement dans le produit
         produit.IdMouvement = self.IdMouvement
         produit.save(update_fields=['IdMouvement'])

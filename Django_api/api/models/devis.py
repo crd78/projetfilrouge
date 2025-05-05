@@ -1,17 +1,16 @@
 from django.db import models
-from .client import Client
-from .commercial import Commercial
+from .personne import Personne
 
 class Devis(models.Model):
     IdDevis = models.AutoField(primary_key=True)
     IdClient = models.ForeignKey(
-        Client, 
+        Personne,
         on_delete=models.CASCADE,
         related_name='devis',
         verbose_name="Client"
     )
     idCommercial = models.ForeignKey(
-        Commercial,
+        Personne,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -32,7 +31,7 @@ class Devis(models.Model):
     DateMiseAJour = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"Devis #{self.IdDevis} - {self.IdClient.Nom} {self.IdClient.Prenom}"
+        return f"Devis #{self.IdDevis} - {self.IdClient.prenom} {self.IdClient.nom}"
     
     class Meta:
         verbose_name = "Devis"

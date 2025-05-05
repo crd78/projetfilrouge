@@ -35,5 +35,7 @@ class Product(models.Model):
         return self.NomProduit
     
     class Meta:
+        app_label = 'api'
         verbose_name = "Produit"
         verbose_name_plural = "Produits"
+

@@ -1,6 +1,6 @@
 from django.db import models
 from .vehicule import Vehicule
-from .collaborateur import Collaborateur  # Importer depuis le nouveau fichier
+from .personne import Personne  # Remplace Collaborateur par Personne
 
 class Maintenance(models.Model):
     TYPE_CHOICES = [
@@ -20,7 +20,7 @@ class Maintenance(models.Model):
     
     IdMaintenance = models.AutoField(primary_key=True)
     IdCollaborateur = models.ForeignKey(
-        Collaborateur,
+        Personne,  # Utiliser Personne pour représenter le collaborateur
         on_delete=models.SET_NULL,
         null=True,
         related_name='maintenances',
@@ -75,13 +75,14 @@ class Maintenance(models.Model):
         return f"Maintenance #{self.IdMaintenance} - {self.IdVehicule} - {self.DateMaintenance.strftime('%d/%m/%Y')}"
     
     def save(self, *args, **kwargs):
-        # Si la maintenance est terminée et qu'il y a une date de fin
         if self.StatutMaintenance == 'TERMINEE' and self.DateFinMaintenance:
-            # Mettre à jour la date de dernière maintenance du véhicule
             vehicule = self.IdVehicule
             vehicule.LastDateMaintenance = self.DateFinMaintenance.date()
             vehicule.save(update_fields=['LastDateMaintenance'])
-            
-            # Si le véhicule était en maintenance, le rendre disponible
             if vehicule.Statut == 'EN_MAINTENANCE':
                 vehicule.Statut = 'DISPONIBLE'
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name = "Maintenance"
+        verbose_name_plural = "Maintenances"

@@ -1,6 +1,6 @@
 from django.db import models
 from .devis import Devis
-from .commercial import Commercial
+from .personne import Personne  # Remplacez l'import de Commercial par Personne
 
 class Ristourne(models.Model):
     idRistourne = models.AutoField(primary_key=True)
@@ -12,7 +12,7 @@ class Ristourne(models.Model):
         verbose_name="Devis"
     )
     IdCommercial = models.ForeignKey(
-        Commercial,
+        Personne,  # Utilise Personne à la place de Commercial
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

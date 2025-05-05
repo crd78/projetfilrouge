@@ -1,5 +1,5 @@
 from django.db import models
-from .client import Client
+from .personne import Personne
 
 class Commande(models.Model):
     STATUT_CHOICES = [
@@ -12,7 +12,7 @@ class Commande(models.Model):
     
     IdCommande = models.AutoField(primary_key=True)
     IdClient = models.ForeignKey(
-        Client,
+        Personne,
         on_delete=models.CASCADE,
         related_name='commandes',
         verbose_name="Client"
@@ -34,10 +34,12 @@ class Commande(models.Model):
         decimal_places=2,
         verbose_name="Montant total TTC"
     )
+    EstPayee = models.BooleanField(default=False, verbose_name="Est payée")  # Nouveau champ
+    DatePaiement = models.DateTimeField(null=True, blank=True, verbose_name="Date de paiement")  # Nouveau champ
     DateMiseAJour = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"Commande #{self.IdCommande} - {self.IdClient.Nom} {self.IdClient.Prenom} - {self.Statut}"
+        return f"Commande #{self.IdCommande} - {self.IdClient.prenom} {self.IdClient.nom} - {self.Statut}"
     
     class Meta:
         verbose_name = "Commande"

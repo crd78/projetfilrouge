@@ -1,14 +1,30 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import (
-    Product, UserProfile, Client, Commercial, Devis, 
-    Commande, Ristourne, Fournisseur, Entrepot, StockMouvement,
-    Vehicule, Transport, Livreur, Livraison,
-    DetailsCommande, Maintenance, Collaborateur  # Ajout de nouvelles classes
+    Product, UserProfile, Devis, 
+    Commande, Ristourne, Entrepot, StockMouvement,
+    Vehicule, Transport, Livraison,
+    DetailsCommande, Maintenance, Personne,Livreur  # Client a été fusionné dans Personne
 )
 
 
+class PersonneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Personne
+        fields = [
+            'id', 'nom', 'prenom', 'telephone', 'email', 
+            'adresse', 'role', 'fonction', 'code_postal', 'ville',
+            'raison_sociale', 'siret', 'date_creation', 'date_miseajour'
+        ]
 
+class LivreurSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Livreur
+        fields = [
+            'IdLivreur', 'Nom', 'Prenom', 'Telephone', 'Email',
+            'Adresse', 'CodePostal', 'Ville', 'DateEmbauche', 'Statut',
+            'DateCreation', 'DateMiseAJour'
+        ]
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,19 +72,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user
     
 
-class ClientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Client       
-        fields = ['IdClient', 'Nom', 'Prenom', 'Fonction', 'CodePostal', 'Ville', 
-                   'Adresse', 'Telephone', 'Email', 'RaisonSociale', 'SIRET', 
-                   'created_at', 'updated_at']
-
-class CommercialSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Commercial
-        fields = ['idCommercial', 'Nom', 'Prenom', 'created_at', 'updated_at']
-        read_only_fields = ['created_at', 'updated_at']
-
 class DevisSerializer(serializers.ModelSerializer):
     class Meta:
         model = Devis
@@ -109,13 +112,6 @@ class TransportSerializer(serializers.ModelSerializer):
                  'Commentaire', 'DateCreation', 'DateMiseAJour']
         read_only_fields = ['DateCreation', 'DateMiseAJour', 'CoutTotal']
 
-class LivreurSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Livreur
-        fields = ['IdLivreur', 'Nom', 'Prenom', 'IdVehicule', 
-                 'Telephone', 'Email', 'Adresse', 'CodePostal', 'Ville',
-                 'DateEmbauche', 'Statut', 'DateCreation', 'DateMiseAJour']
-        read_only_fields = ['DateCreation', 'DateMiseAJour']
 
 class DetailsCommandeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -130,13 +126,6 @@ class LivraisonSerializer(serializers.ModelSerializer):
                  'Commentaire', 'DateCreation', 'DateMiseAJour']
         read_only_fields = ['DateCreation', 'DateMiseAJour']
 
-class CollaborateurSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Collaborateur
-        fields = ['IdCollaborateur', 'Nom', 'Prenom', 'Specialite',
-                  'Telephone', 'Email', 'DateEmbauche', 'Actif',
-                  'DateCreation', 'DateMiseAJour']
-        read_only_fields = ['DateCreation', 'DateMiseAJour']
 
 class MaintenanceSerializer(serializers.ModelSerializer):
     class Meta:

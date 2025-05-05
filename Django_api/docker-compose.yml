@@ -12,14 +12,13 @@ services:
       - DOCKER_CONTAINER=1
     depends_on:
       - db
-      - db-setup
     command: >
-      sh -c "sleep 15 && 
-             echo 'Démarrage du serveur Django...' &&
-             python manage.py migrate &&
-             gunicorn --bind 0.0.0.0:8000 django_project.wsgi:application"
-  
-  # Service de configuration de la base de données
+      sh -c "
+      echo 'Attente du démarrage de la base de données...' &&
+      sleep 10 &&
+      echo 'Démarrage du serveur Django...' &&
+      gunicorn --bind 0.0.0.0:8000 django_project.wsgi:application"
+
   db-setup:
     build: .
     volumes:
@@ -30,17 +29,16 @@ services:
       - db
     command: >
       sh -c "
-      echo 'Attente de MySQL...' &&
-      sleep 10 &&
-      echo 'Création de la base de données...' &&
-      mysql -h db -u root -e 'CREATE DATABASE IF NOT EXISTS django_api_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;' &&
+      echo 'Attente et configuration de la base de données...' &&
+      sleep 20 &&
+      python recreate_db.py &&
       python manage.py migrate &&
       echo 'Configuration de la base de données terminée!'"
   
   db:
     image: mysql:8.0
     ports:
-      - "3307:3306"
+      - "3307:3306"  # 3307 sur hôte, 3306 dans conteneur
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_DATABASE=django_api_db
