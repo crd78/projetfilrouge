@@ -1,5 +1,6 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status
 from ..models import Personne
 from ..serializers import PersonneSerializer
@@ -47,6 +48,7 @@ def client_detail(request, id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def client_inscription(request):
     """
     Permet à un boulanger de s'inscrire sur le site avec les informations nécessaires (nom, prénom, siret, etc.).
