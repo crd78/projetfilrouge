@@ -5,3 +5,4 @@ mysqlclient
 djangorestframework-simplejwt
 python-dotenv
 django-cors-headers
+drf-yasg

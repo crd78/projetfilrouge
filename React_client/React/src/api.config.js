@@ -9,7 +9,7 @@ const API_CONFIG = {
   
   // Endpoints spécifiques
   ENDPOINTS: {
-    LOGIN: 'api/login',
+    LOGIN: 'api/client/connexion ',
     REGISTER: 'api/client/inscription',  
     USERS: 'api/users',
     // Ajoutez d'autres endpoints selon vos besoins
