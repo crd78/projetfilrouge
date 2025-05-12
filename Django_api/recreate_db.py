@@ -5,6 +5,7 @@ import os
 def recreate_database():
     max_attempts = 30
     attempts = 0
+    db_name = "django_api_db"
     
     print("Tentative de connexion à MySQL...")
     while attempts < max_attempts:
@@ -18,16 +19,22 @@ def recreate_database():
             )
             cursor = conn.cursor()
             
-            # Créer une nouvelle base de données
-            cursor.execute("DROP DATABASE IF EXISTS django_api_db;")
-            cursor.execute("CREATE DATABASE django_api_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
-            print("Base de données créée avec succès")
+            # Vérifier si la base de données existe déjà
+            cursor.execute("SHOW DATABASES LIKE %s", (db_name,))
+            result = cursor.fetchone()
+            
+            if result:
+                print(f"La base de données '{db_name}' existe déjà. Aucune action nécessaire.")
+            else:
+                # Créer la base de données seulement si elle n'existe pas
+                cursor.execute(f"CREATE DATABASE {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
+                print(f"Base de données '{db_name}' créée avec succès")
             
             # Fermer la connexion
             cursor.close()
             conn.close()
             
-            print("Recréation terminée avec succès")
+            print("Configuration de la base de données terminée avec succès")
             return True
         except Exception as e:
             attempts += 1

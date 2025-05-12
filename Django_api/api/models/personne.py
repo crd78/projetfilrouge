@@ -13,7 +13,8 @@ class Personne(models.Model):
     nom = models.CharField(max_length=100, verbose_name="Nom")
     prenom = models.CharField(max_length=100, verbose_name="Prénom")
     telephone = models.CharField(max_length=20, blank=True, verbose_name="Téléphone")
-    email = models.EmailField(blank=True, verbose_name="Email")
+    email = models.EmailField(blank=True,unique=True, verbose_name="Email")
+    password = models.CharField(max_length=128, null=True, blank=True)
     adresse = models.TextField(blank=True, verbose_name="Adresse")
     role = models.IntegerField(choices=ROLE_CHOICES, verbose_name="Rôle")
     

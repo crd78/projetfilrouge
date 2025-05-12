@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password  # Ajoutez cet import
 from .models import (
     Product, UserProfile, Devis, 
     Commande, Ristourne, Entrepot, StockMouvement,
@@ -12,10 +13,24 @@ class PersonneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personne
         fields = [
-            'id', 'nom', 'prenom', 'telephone', 'email', 
+            'id', 'nom', 'prenom', 'telephone', 'email', 'password', 
             'adresse', 'role', 'fonction', 'code_postal', 'ville',
             'raison_sociale', 'siret', 'date_creation', 'date_miseajour'
         ]
+        extra_kwargs = {'password': {'write_only': True}}
+
+  
+    def create(self, validated_data):
+        # Hash le mot de passe avant de l'enregistrer
+        if 'password' in validated_data:
+            validated_data['password'] = make_password(validated_data.get('password'))
+        return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        # Hash le mot de passe avant de le mettre à jour, si fourni
+        if 'password' in validated_data:
+            validated_data['password'] = make_password(validated_data.get('password'))
+        return super().update(instance, validated_data)
 
 class LivreurSerializer(serializers.ModelSerializer):
     class Meta:

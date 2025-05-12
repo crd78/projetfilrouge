@@ -1,8 +1,11 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status
 from ..models import Personne
 from ..serializers import PersonneSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.hashers import check_password
 
 @api_view(['GET'])
 def personne_list(request):
@@ -47,6 +50,7 @@ def client_detail(request, id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def client_inscription(request):
     """
     Permet à un boulanger de s'inscrire sur le site avec les informations nécessaires (nom, prénom, siret, etc.).
@@ -61,6 +65,47 @@ def client_inscription(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def client_connexion(request):
+    """
+    Permet à un utilisateur de se connecter avec son email et mot de passe
+    et reçoit un token JWT en retour.
+    """
+    email = request.data.get('email')
+    password = request.data.get('password')
+    
+    try:
+        # Rechercher l'utilisateur par email
+        personne = Personne.objects.get(email=email)
+        
+        # Vérifier le mot de passe
+        if check_password(password, personne.password):
+            # Créer manuellement un token JWT
+            refresh = RefreshToken()
+            
+            # Ajouter des claims personnalisés
+            refresh['user_id'] = personne.id
+            refresh['email'] = personne.email
+            refresh['role'] = personne.role
+            refresh['nom'] = personne.nom
+            
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user': {
+                    'id': personne.id,
+                    'nom': personne.nom,
+                    'prenom': personne.prenom,
+                    'email': personne.email,
+                    'role': personne.role
+                }
+            })
+        else:
+            return Response({'error': 'Identifiants invalides'}, status=status.HTTP_401_UNAUTHORIZED)
+    except Personne.DoesNotExist:
+        return Response({'error': 'Identifiants invalides'}, status=status.HTTP_401_UNAUTHORIZED)
+    
 # Fonctions pour les commerciaux (rôle = 2 par exemple)
 @api_view(['GET'])
 def commercial_list(request):

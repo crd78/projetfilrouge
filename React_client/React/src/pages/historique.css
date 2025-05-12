@@ -1,0 +1,147 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* NAVBAR */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2.5rem;
+    border-bottom: 1px solid #ddd;
+    background-color: white;
+  }
+  
+  .nav-left {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .nav-left li {
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .nav-left li.active {
+    color: #d59e00;
+    font-weight: bold;
+  }
+  
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .search-icon {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+  
+  .search-input {
+    padding: 0.4rem 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .icon {
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  /* PAGE */
+  .historique-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  /* BOÎTE COMMANDE */
+  .commande-box {
+    border: 2px solid #d1d5db;
+    border-radius: 1rem;
+    padding: 1rem 2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2rem;
+  }
+  
+  /* INFOS */
+  .commande-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 140px;
+  }
+  
+  .label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+  }
+  
+  .value {
+    font-size: 1rem;
+  }
+  
+  .bold {
+    font-weight: bold;
+  }
+  
+  /* BADGES */
+  .badge {
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.85rem;
+    text-align: center;
+    font-weight: 500;
+    width: fit-content;
+  }
+  
+  .green {
+    background-color: #22c55e;
+  }
+  
+  .yellow {
+    background-color: #eab308;
+  }
+  
+  .red {
+    background-color: #ef4444;
+  }
+  
+  .gray {
+    background-color: #6b7280;
+  }
+  
+  /* Détail */
+  .detail-link {
+    font-weight: 500;
+    color: #111827;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  

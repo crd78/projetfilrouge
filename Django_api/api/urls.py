@@ -9,7 +9,7 @@ from .views.vehicule_views import vehicule_list, vehicule_maintenance, vehicule_
 from .views.statistiques_views import statistiques_visites, statistiques_performances
 from .views.livreur_views import livreur_mission, livreur_livraison_termine, livreur_qr_code
 from .views.personne_views import (
-    client_list, client_detail, client_inscription,
+    client_list, client_detail, client_inscription,client_connexion,
     commercial_list, commercial_detail,
     fournisseur_list, fournisseur_detail, fournisseur_create, fournisseur_update
 )
@@ -33,6 +33,7 @@ from .views.livraison_views import (
 urlpatterns = [
     # Client routes
     path('client/inscription', client_inscription, name='client_inscription'),
+    path('client/connexion', client_connexion, name='client_connexion'),  # Ajoutez cette ligne
     path('Clients/<int:id>', client_detail, name='client_detail'),
     
     # Product routes
