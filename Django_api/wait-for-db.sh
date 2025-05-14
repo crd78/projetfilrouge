@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variable pour le nombre maximal de tentatives
-max_attempts=60  # Augmenté à 60 secondes
+max_attempts=60  
 attempts=0
 
 echo "Waiting for MySQL to be ready..."

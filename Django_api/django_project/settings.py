@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+# ID de serveur unique pour identifier l'instance (utile pour le logging)
+SERVER_ID = os.environ.get('SERVER_ID', '0')
 # Charger les variables d'environnement du fichier .env
 load_dotenv()
 
@@ -47,8 +49,11 @@ INSTALLED_APPS = [
     'drf_yasg', 
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'api.middleware.server_identifier_middleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
