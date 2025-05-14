@@ -7,12 +7,11 @@ import os
 import socket
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # Permet à tout le monde d'accéder à cet endpoint
+@permission_classes([AllowAny])  
 @authentication_classes([]) 
 def health_check(request):
     """
-    Simple endpoint for health checking and testing load balancing.
-    Returns the server ID and hostname.
+    retourne l id du serv et l hostname
     """
     server_id = os.environ.get('SERVER_ID', 'unknown')
     hostname = socket.gethostname()
