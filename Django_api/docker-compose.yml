@@ -1,22 +1,77 @@
 version: '3'
 
 services:
-  web:
+  # Ajout du service nginx comme load balancer
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8000:80"  # Port principal pour les requêtes externes
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - .:/app  # Pour accéder aux fichiers statiques
+    depends_on:
+      - web1
+      - web2
+      - web3
+
+  # Renommage du service web existant en web1
+  web1:
     build: .
     ports:
-      - "8000:8000"
+      - "8001:8000"  # Port différent pour éviter les conflits
     volumes:
       - .:/app
     environment:
       - DEBUG=True
       - DOCKER_CONTAINER=1
+      - SERVER_ID=1  # ID unique pour identifier cette instance
     depends_on:
       - db
     command: >
       sh -c "
       echo 'Attente du démarrage de la base de données...' &&
       sleep 10 &&
-      echo 'Démarrage du serveur Django...' &&
+      echo 'Démarrage du serveur Django (instance 1)...' &&
+      gunicorn --bind 0.0.0.0:8000 django_project.wsgi:application"
+
+  # Ajout de web2 (clone de web1 avec un ID différent)
+  web2:
+    build: .
+    ports:
+      - "8002:8000"  # Port différent pour éviter les conflits
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=True
+      - DOCKER_CONTAINER=1
+      - SERVER_ID=2  # ID unique pour identifier cette instance
+    depends_on:
+      - db
+    command: >
+      sh -c "
+      echo 'Attente du démarrage de la base de données...' &&
+      sleep 10 &&
+      echo 'Démarrage du serveur Django (instance 2)...' &&
+      gunicorn --bind 0.0.0.0:8000 django_project.wsgi:application"
+
+  # Ajout de web3 (clone de web1 avec un ID différent)
+  web3:
+    build: .
+    ports:
+      - "8003:8000"  # Port différent pour éviter les conflits
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=True
+      - DOCKER_CONTAINER=1
+      - SERVER_ID=3  # ID unique pour identifier cette instance
+    depends_on:
+      - db
+    command: >
+      sh -c "
+      echo 'Attente du démarrage de la base de données...' &&
+      sleep 10 &&
+      echo 'Démarrage du serveur Django (instance 3)...' &&
       gunicorn --bind 0.0.0.0:8000 django_project.wsgi:application"
 
   db-setup:

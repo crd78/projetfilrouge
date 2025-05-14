@@ -29,8 +29,13 @@ from .views.livraison_views import (
     livraison_list, livraison_detail, commande_livraisons, 
     livraisons_by_statut, update_livraison_status
 )
+from .views.health_views import health_check, simple_test
 
 urlpatterns = [
+
+    path('health-check/', health_check, name='health_check'),
+    path('simple-test/', simple_test, name='simple_test'),
+
     # Client routes
     path('client/inscription', client_inscription, name='client_inscription'),
     path('client/connexion', client_connexion, name='client_connexion'),  # Ajoutez cette ligne
