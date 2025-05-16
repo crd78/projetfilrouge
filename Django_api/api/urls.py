@@ -29,10 +29,12 @@ from .views.livraison_views import (
     livraison_list, livraison_detail, commande_livraisons, 
     livraisons_by_statut, update_livraison_status
 )
-from .views.health_views import health_check, simple_test
+from .views.health_views import health_check, simple_test,test_celery
+
 
 urlpatterns = [
 
+    path('test-celery/', test_celery),
     path('health-check/', health_check, name='health_check'),
     path('simple-test/', simple_test, name='simple_test'),
 
