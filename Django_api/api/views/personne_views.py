@@ -6,6 +6,7 @@ from ..models import Personne
 from ..serializers import PersonneSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
+from ..tasks import update_client_task, update_commercial_task, update_fournisseur_task
 
 @api_view(['GET'])
 def personne_list(request):
@@ -40,11 +41,17 @@ def client_detail(request, id):
         serializer = PersonneSerializer(client)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = PersonneSerializer(client, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_client_task.delay(id, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = PersonneSerializer(client).data
+        
+        return Response({
+            "message": f"Mise à jour du client {id} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     elif request.method == 'DELETE':
         client.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -130,11 +137,17 @@ def commercial_detail(request, id):
         serializer = PersonneSerializer(commercial)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = PersonneSerializer(commercial, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_commercial_task.delay(id, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = PersonneSerializer(commercial).data
+        
+        return Response({
+            "message": f"Mise à jour du commercial {id} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     elif request.method == 'DELETE':
         commercial.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -163,11 +176,17 @@ def fournisseur_detail(request, id):
         serializer = PersonneSerializer(fournisseur)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = PersonneSerializer(fournisseur, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_fournisseur_task.delay(id, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = PersonneSerializer(fournisseur).data
+        
+        return Response({
+            "message": f"Mise à jour du fournisseur {id} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     elif request.method == 'DELETE':
         fournisseur.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -197,8 +216,14 @@ def fournisseur_update(request, id):
     except Personne.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
-    serializer = PersonneSerializer(fournisseur, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Envoie la tâche à Celery pour traitement asynchrone
+    task = update_fournisseur_task.delay(id, request.data)
+    
+    # Récupère les données actuelles pour la réponse
+    current_data = PersonneSerializer(fournisseur).data
+    
+    return Response({
+        "message": f"Mise à jour du fournisseur {id} en cours",
+        "task_id": task.id,
+        "current_data": current_data
+    })

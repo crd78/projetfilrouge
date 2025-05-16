@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Maintenance, Vehicule, Personne  # Replace Collaborateur with Personne
 from ..serializers import MaintenanceSerializer
+from ..tasks import update_maintenance_task, update_maintenance_status_task  
 
 @api_view(['GET', 'POST'])
 def maintenance_list(request):
@@ -34,11 +35,17 @@ def maintenance_detail(request, pk):
         serializer = MaintenanceSerializer(maintenance)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = MaintenanceSerializer(maintenance, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_maintenance_task.delay(pk, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = MaintenanceSerializer(maintenance).data
+        
+        return Response({
+            "message": f"Mise à jour de la maintenance {pk} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     elif request.method == 'DELETE':
         maintenance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -71,18 +78,25 @@ def collaborateur_maintenances(request, collaborateur_id):
 @api_view(['PUT'])
 def update_maintenance_status(request, pk, statut):
     """
-    Met à jour le statut d'une maintenance.
+    Met à jour le statut d'une maintenance via Celery (asynchrone).
     """
     try:
+        # Vérifie d'abord si la maintenance existe
         maintenance = Maintenance.objects.get(pk=pk)
-        maintenance.StatutMaintenance = statut.upper()
-        # If the maintenance is finished, update the end date.
-        if statut.upper() == 'TERMINEE' and not maintenance.DateFinMaintenance:
-            from datetime import datetime
-            maintenance.DateFinMaintenance = datetime.now()
-        maintenance.save()
-        serializer = MaintenanceSerializer(maintenance)
-        return Response(serializer.data)
+        
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_maintenance_status_task.delay(pk, statut)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = MaintenanceSerializer(maintenance).data
+        
+        return Response({
+            "message": f"Mise à jour du statut de la maintenance {pk} en cours",
+            "task_id": task.id,
+            "current_status": maintenance.StatutMaintenance,
+            "new_status": statut.upper(),
+            "current_data": current_data
+        })
     except Maintenance.DoesNotExist:
         return Response({"error": "Maintenance non trouvée"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:

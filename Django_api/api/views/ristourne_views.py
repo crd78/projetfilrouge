@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Ristourne
 from ..serializers import RistourneSerializer
+from ..tasks import update_ristourne_task
 
 @api_view(['GET', 'POST'])
 def ristourne_list(request):
@@ -36,11 +37,17 @@ def ristourne_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        serializer = RistourneSerializer(ristourne, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_ristourne_task.delay(pk, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = RistourneSerializer(ristourne).data
+        
+        return Response({
+            "message": f"Mise à jour de la ristourne {pk} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     
     elif request.method == 'DELETE':
         ristourne.delete()

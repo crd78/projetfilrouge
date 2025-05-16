@@ -1,8 +1,9 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from ..models import  Devis, Commande 
+from ..models import Devis, Commande 
 from ..serializers import DevisSerializer
+from ..tasks import update_devis_task, accepter_devis_task  # Ajoute cet import
 
 @api_view(['GET', 'POST'])
 def devis_list(request):
@@ -36,11 +37,17 @@ def devis_detail(request, id):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        serializer = DevisSerializer(devis, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_devis_task.delay(id, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = DevisSerializer(devis).data
+        
+        return Response({
+            "message": f"Mise à jour du devis {id} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     
     elif request.method == 'DELETE':
         devis.delete()
@@ -64,28 +71,19 @@ def devis_accepter(request, id):
     Permet à un boulanger d'accepter un devis validé par le commercial.
     """
     try:
+        # Vérifie d'abord si le devis existe
         devis = Devis.objects.get(pk=id)
         
-        # Mettre à jour le statut du devis pour indiquer qu'il est accepté
-        # (Vous devrez peut-être ajouter un champ statut au modèle Devis)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = accepter_devis_task.delay(id)
         
-        # Si vous voulez aussi créer une commande à partir du devis
-        nouvelle_commande = Commande.objects.create(
-            IdClient=devis.IdClient,
-            MontantTotalHT=devis.MontantTotalHT,
-            MontantTotalTTC=devis.MontantTotalTTC,
-            # Autres champs nécessaires
-        )
+        # Récupère les données actuelles pour la réponse
+        current_data = DevisSerializer(devis).data
         
-        # Réponse avec le devis modifié
-        serializer = DevisSerializer(devis)
         return Response({
-            "message": "Devis accepté avec succès",
-            "devis": serializer.data,
-            "commande": {
-                "id": nouvelle_commande.IdCommande,
-                # Autres informations sur la commande
-            }
+            "message": f"Traitement de l'acceptation du devis {id} en cours",
+            "task_id": task.id,
+            "current_data": current_data
         })
     except Devis.DoesNotExist:
         return Response({"error": "Devis non trouvé"}, status=status.HTTP_404_NOT_FOUND)

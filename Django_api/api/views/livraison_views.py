@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Livraison, Commande, Transport
 from ..serializers import LivraisonSerializer, CommandeSerializer
+from ..tasks import update_livraison_status_task,livraison_detail
 
 @api_view(['GET', 'POST'])
 def livraison_list(request):
@@ -36,11 +37,17 @@ def livraison_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        serializer = LivraisonSerializer(livraison, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_livraison_status_task.delay(pk, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = LivraisonSerializer(livraison).data
+        
+        return Response({
+            "message": f"Mise à jour de la livraison {pk} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     
     elif request.method == 'DELETE':
         livraison.delete()
@@ -73,14 +80,21 @@ def livraisons_by_statut(request, statut):
 @api_view(['PUT'])
 def update_livraison_status(request, pk, statut):
     """
-    Met à jour le statut d'une livraison
+    Met à jour le statut d'une livraison via Celery 
     """
     try:
+        # Vérifie d'abord si la livraison existe
         livraison = Livraison.objects.get(pk=pk)
-        livraison.Statut = statut.upper()
-        livraison.save()
-        serializer = LivraisonSerializer(livraison)
-        return Response(serializer.data)
+        
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_livraison_status_task.delay(pk, statut)
+        
+        return Response({
+            "message": f"Mise à jour du statut de la livraison {pk} en cours",
+            "task_id": task.id,
+            "current_status": livraison.Statut,
+            "new_status": statut.upper()
+        })
     except Livraison.DoesNotExist:
         return Response({"error": "Livraison non trouvée"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:

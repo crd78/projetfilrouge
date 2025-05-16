@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Transport
 from ..serializers import TransportSerializer
+from ..tasks import update_transport_status_task
 
 @api_view(['POST'])
 def transport_create(request):
@@ -19,27 +20,24 @@ def transport_create(request):
 @api_view(['PUT'])
 def transport_update_status(request, id):
     """
-    Permet de changer l'état d'une demande de transport à "Livré" ou "En cours".
+    Permet de changer l'état d'une demande de transport via Celery (asynchrone)
     """
     try:
+        # Vérifie d'abord si le transport existe
         transport = Transport.objects.get(pk=id)
+        
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_transport_status_task.delay(id, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = TransportSerializer(transport).data
+        
+        return Response({
+            "message": f"Mise à jour du statut du transport {id} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     except Transport.DoesNotExist:
         return Response({"error": "Transport non trouvé"}, status=status.HTTP_404_NOT_FOUND)
-    
-    # Mettons à jour les champs requis pour le statut
-    if 'status' in request.data:
-        status_value = request.data['status'].upper()
-        
-        # Mettre à jour les dates de début ou fin en fonction du statut
-        from datetime import datetime
-        if status_value == "EN_COURS" and not transport.DateDebut:
-            transport.DateDebut = datetime.now()
-        elif (status_value == "LIVRÉ" or status_value == "LIVRE") and not transport.DateFin:
-            transport.DateFin = datetime.now()
-        
-    # Mettre à jour le transport avec les données de la requête
-    serializer = TransportSerializer(transport, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
