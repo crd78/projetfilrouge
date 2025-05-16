@@ -4,6 +4,8 @@ from rest_framework import status
 from ..models import Livreur, Vehicule, Transport
 from ..serializers import LivreurSerializer, TransportSerializer
 from datetime import datetime
+from ..tasks import update_livreur_task, terminer_livraison_task 
+
 
 @api_view(['GET', 'POST'])
 def livreur_list(request):
@@ -35,11 +37,17 @@ def livreur_detail(request, pk):
         serializer = LivreurSerializer(livreur)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = LivreurSerializer(livreur, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_livreur_task.delay(pk, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = LivreurSerializer(livreur).data
+        
+        return Response({
+            "message": f"Mise à jour du livreur {pk} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     elif request.method == 'DELETE':
         livreur.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -137,36 +145,17 @@ def livreur_livraison_termine(request, id):
     Permet à un livreur de marquer une livraison comme terminée après livraison au client.
     """
     try:
+        # Vérifie d'abord si le livreur existe
         livreur = Livreur.objects.get(pk=id)
         
-        # Traitement de la fin de livraison
-        livraison_data = request.data
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = terminer_livraison_task.delay(id, request.data)
         
-        if 'livraison_id' not in livraison_data:
-            return Response({"error": "ID de livraison manquant"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        try:
-            from ..models import Livraison
-            livraison = Livraison.objects.get(pk=livraison_data['livraison_id'])
-            livraison.Statut = 'LIVREE'
-            from datetime import datetime
-            livraison.DateLivraison = datetime.now()
-            livraison.save()
-            
-            # Mise à jour du statut de la commande associée si nécessaire
-            commande = livraison.IdCommande
-            commande.Statut = 'LIVREE'
-            commande.save()
-            
-            return Response({
-                "message": f"Livraison #{livraison.IdLivraison} marquée comme terminée par le livreur {livreur.Prenom} {livreur.Nom}",
-                "date_livraison": livraison.DateLivraison,
-                "statut": livraison.Statut
-            })
-            
-        except Livraison.DoesNotExist:
-            return Response({"error": "Livraison non trouvée"}, status=status.HTTP_404_NOT_FOUND)
-            
+        return Response({
+            "message": f"Traitement de fin de livraison en cours",
+            "task_id": task.id,
+            "livreur": f"{livreur.Prenom} {livreur.Nom}"
+        })
     except Livreur.DoesNotExist:
         return Response({"error": "Livreur non trouvé"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:

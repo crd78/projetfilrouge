@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Product
 from ..serializers import ProductSerializer
+from ..tasks import update_product_task
 
 @api_view(['GET'])
 def hello_world(request):
@@ -44,11 +45,17 @@ def product_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        serializer = ProductSerializer(product, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_product_task.delay(pk, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = ProductSerializer(product).data
+        
+        return Response({
+            "message": f"Mise à jour du produit {pk} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     
     elif request.method == 'DELETE':
         product.delete()

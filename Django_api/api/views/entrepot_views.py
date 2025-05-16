@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Entrepot, Product
 from ..serializers import EntrepotSerializer
+from ..tasks import update_entrepot_task
 
 @api_view(['GET', 'POST'])
 def entrepot_list(request):
@@ -36,11 +37,17 @@ def entrepot_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        serializer = EntrepotSerializer(entrepot, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_entrepot_task.delay(pk, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = EntrepotSerializer(entrepot).data
+        
+        return Response({
+            "message": f"Mise à jour de l'entrepôt {pk} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     
     elif request.method == 'DELETE':
         entrepot.delete()

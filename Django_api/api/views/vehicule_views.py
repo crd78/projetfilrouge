@@ -2,7 +2,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Vehicule, Transport
+from ..tasks import process_vehicule_maintenance
 from ..serializers import VehiculeSerializer, TransportSerializer
+from ..tasks import update_vehicule_task
 
 @api_view(['GET', 'POST'])
 def vehicule_list(request):
@@ -36,11 +38,21 @@ def vehicule_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        serializer = VehiculeSerializer(vehicule, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Vérifie si le véhicule existe avant de soumettre la tâche
+        if not Vehicule.objects.filter(pk=pk).exists():
+            return Response({"error": "Véhicule non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = update_vehicule_task.delay(pk, request.data)
+        
+        # Récupère les données actuelles pour la réponse
+        current_data = VehiculeSerializer(vehicule).data
+        
+        return Response({
+            "message": f"Mise à jour du véhicule {pk} en cours",
+            "task_id": task.id,
+            "current_data": current_data
+        })
     
     elif request.method == 'DELETE':
         vehicule.delete()
@@ -73,50 +85,31 @@ def vehicules_by_status(request, status_value):
 @api_view(['PUT'])
 def vehicule_maintenance(request, id):
     """
-    Permet de mettre un véhicule en maintenance.
+    Permet de mettre un véhicule en maintenance via Celery (asynchrone)
     """
     try:
+        # Vérifie d'abord si le véhicule existe
         vehicule = Vehicule.objects.get(pk=id)
         
-        # Vérifier si le véhicule n'est pas déjà en maintenance
-        if vehicule.Statut == 'EN_MAINTENANCE':
-            return Response({
-                "error": "Ce véhicule est déjà en maintenance"
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # Prépare les données de maintenance si présentes
+        maintenance_data = request.data.get('maintenance_data')
         
-        # Mettre à jour le statut du véhicule
-        vehicule.Statut = 'EN_MAINTENANCE'
-        vehicule.save()
-        
-        # Créer une entrée de maintenance si des informations sont fournies
-        if 'maintenance_data' in request.data:
-            from ..models import Maintenance
-            from datetime import datetime
-            
-            maintenance_data = request.data['maintenance_data']
-            maintenance = Maintenance(
-                IdVehicule=vehicule,
-                DateMaintenance=datetime.now(),
-                TypeMaintenance=maintenance_data.get('type', 'REVISION'),
-                Description=maintenance_data.get('description', ''),
-                StatutMaintenance='PLANIFIEE',
-                IdCollaborateur_id=maintenance_data.get('collaborateur_id')
-            )
-            maintenance.save()
-            
-            from ..serializers import MaintenanceSerializer
-            maintenance_serializer = MaintenanceSerializer(maintenance)
-            
-            return Response({
-                "message": "Véhicule mis en maintenance avec succès",
-                "vehicule": VehiculeSerializer(vehicule).data,
-                "maintenance": maintenance_serializer.data
-            })
+        # Envoie la tâche à Celery pour traitement asynchrone
+        task = process_vehicule_maintenance.delay(
+            vehicule_id=id, 
+            maintenance_data=maintenance_data
+        )
         
         return Response({
-            "message": "Véhicule mis en maintenance avec succès",
-            "vehicule": VehiculeSerializer(vehicule).data
+            "message": f"Mise en maintenance du véhicule {id} en cours",
+            "task_id": task.id,
+            "current_status": vehicule.Statut
         })
+        
+    except Vehicule.DoesNotExist:
+        return Response({"error": "Véhicule non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
     except Vehicule.DoesNotExist:
         return Response({"error": "Véhicule non trouvé"}, status=status.HTTP_404_NOT_FOUND)
