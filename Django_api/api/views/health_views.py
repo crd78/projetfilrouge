@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 import os
 import socket
+from api.tasks import addition
 
 @api_view(['GET'])
 @permission_classes([AllowAny])  
@@ -31,3 +32,10 @@ def simple_test(request):
     return Response({
         'server_id': server_id
     })
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@authentication_classes([])
+def test_celery(request):
+    addition.delay(2, 3)
+    return Response({'message': 'Tâche Celery envoyée !'})

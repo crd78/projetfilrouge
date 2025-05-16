@@ -66,6 +66,9 @@ MIDDLEWARE = [
 # Autorisez toutes les origines CORS
 CORS_ALLOW_ALL_ORIGINS = True
 
+CELERY_BROKER_URL = 'amqp://admin:admin@rabbitmq:5672//'
+CELERY_RESULT_BACKEND = 'rpc://'
+
 
 ROOT_URLCONF = 'django_project.urls'
 
