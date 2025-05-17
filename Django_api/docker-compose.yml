@@ -63,7 +63,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=mongadmin
       - MONGO_INITDB_ROOT_PASSWORD=1234
     ports:
-      - 27018:27017
+      - "27018:27017" # 27018 sur hôte, 27017 dans conteneur
     volumes:
       - mongodata:/data/db
 

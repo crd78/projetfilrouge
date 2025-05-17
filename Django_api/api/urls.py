@@ -8,6 +8,7 @@ from .views.transport_views import transport_create, transport_update_status
 from .views.vehicule_views import vehicule_list, vehicule_maintenance, vehicule_detail, vehicule_transports, vehicules_by_status
 from .views.statistiques_views import statistiques_visites, statistiques_performances
 from .views.livreur_views import livreur_mission, livreur_livraison_termine, livreur_qr_code
+from .views.stats_views import stats_list
 from .views.personne_views import (
     client_list, client_detail, client_inscription,client_connexion,
     commercial_list, commercial_detail,
@@ -101,4 +102,8 @@ urlpatterns = [
     path('commandes/<int:commande_id>/livraisons', commande_livraisons, name='commande_livraisons'),
     path('livraisons/status/<str:statut>', livraisons_by_statut, name='livraisons_by_statut'),
     path('livraisons/<int:pk>/status/<str:statut>', update_livraison_status, name='update_livraison_status'),
+
+
+    # Statistiques desktop
+     path('stats', stats_list, name='stats_list'),
 ]
