@@ -62,3 +62,26 @@ def stats_list(request):
                 return JsonResponse({"error": f"Insertion failed: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def users_list(request):
+    """
+    Liste les utilisateurs correspondant à un nom d'utilisateur donné (paramètre 'username').
+    """
+    if request.method == 'GET':
+        username = request.GET.get('username') 
+
+        myclient = pymongo.MongoClient("mongodb://mongadmin:1234@mongo:27017/?authSource=admin")
+        mydb = myclient["minot_or_stats"]
+        mycol = mydb["users"]
+        
+        if username:
+            query = {"username": username}
+            data = list(mycol.find(query))
+        else:
+            data = list()
+        
+        return JsonResponse(data, safe=False, json_dumps_params={'default': json_util.default})
