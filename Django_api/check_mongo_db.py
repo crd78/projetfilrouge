@@ -3,7 +3,7 @@ import json
 
 def check_mongo_db():
     # Connect to MongoDB
-    myclient = pymongo.MongoClient("mongodb://localhost:27018/")
+    myclient = pymongo.MongoClient("mongodb://mongadmin:1234@mongo:27017/?authSource=admin")
     dbnames = myclient.list_database_names()
     mydb_name = "minot_or_stats"
 
@@ -11,7 +11,7 @@ def check_mongo_db():
         mydb = myclient[mydb_name]
         print(f"Base de données '{mydb_name}' créée.")
 
-        json_file_path = r'Django_api\default_stats.json'
+        json_file_path = r'./default_stats.json'
 
         with open(json_file_path, 'r') as file:
             data = json.load(file)
