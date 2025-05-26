@@ -9,13 +9,6 @@ from bson import json_util
 from django.http import JsonResponse
 from datetime import datetime
 
-
-def date_format():
-    now = datetime.now()
-    formatted_date = now.strftime("%Y-%m-%d")
-    return formatted_date
-
-
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def stats_list(request):
@@ -38,7 +31,8 @@ def stats_list(request):
             if not page_name:
                 return JsonResponse({"error": "page_name is missing"}, status=400)
 
-            visit_date = date_format()
+            visit_date = datetime.now()
+
             doc = {
                 "page_name": page_name,
                 "visit_date": visit_date
