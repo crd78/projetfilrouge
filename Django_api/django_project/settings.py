@@ -50,7 +50,7 @@ INSTALLED_APPS = [
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-
+AUTH_USER_MODEL = 'api.Personne'
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'api.middleware.server_identifier_middleware',
@@ -89,7 +89,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'django_project.wsgi.application'
-
+CELERY_BROKER_URL = 'amqp://admin:admin@rabbitmq:5672//'
+CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_TASK_DEFAULT_QUEUE = 'celery'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

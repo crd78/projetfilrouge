@@ -129,7 +129,7 @@ def commercial_detail(request, id):
     Récupère, met à jour ou supprime un commercial.
     """
     try:
-        commercial = Personne.objects.get(pk=id, Role=2)
+        commercial = Personne.objects.get(pk=id, role=2)
     except Personne.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     

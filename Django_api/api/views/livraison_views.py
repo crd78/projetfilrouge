@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Livraison, Commande, Transport
 from ..serializers import LivraisonSerializer, CommandeSerializer
-from ..tasks import update_livraison_status_task,livraison_detail
+from ..tasks import update_livraison_status_task
 
 @api_view(['GET', 'POST'])
 def livraison_list(request):
