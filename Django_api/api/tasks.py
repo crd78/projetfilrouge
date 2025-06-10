@@ -729,3 +729,66 @@ def commande_livrer_task(commande_id):
             "success": False,
             "error": str(e)
         }
+
+@shared_task
+def update_commande_task(commande_id, data):
+    """Tâche Celery pour mettre à jour une commande de manière asynchrone"""
+    from .models import Commande
+    from .serializers import CommandeSerializer
+    
+    try:
+        commande = Commande.objects.get(pk=commande_id)
+        serializer = CommandeSerializer(commande, data=data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return {
+                "success": True,
+                "message": f"Commande {commande_id} mise à jour avec succès",
+                "data": serializer.data
+            }
+        else:
+            return {
+                "success": False,
+                "errors": serializer.errors
+            }
+    except Commande.DoesNotExist:
+        return {
+            "success": False,
+            "error": f"Commande {commande_id} non trouvée"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@shared_task
+def commande_payer_task(commande_id):
+    """Tâche Celery pour marquer une commande comme payée"""
+    from .models import Commande
+    from .serializers import CommandeSerializer
+    from datetime import datetime
+    
+    try:
+        commande = Commande.objects.get(pk=commande_id)
+        commande.EstPayee = True
+        commande.DatePaiement = datetime.now()
+        commande.save()
+        
+        serializer = CommandeSerializer(commande)
+        return {
+            "success": True,
+            "message": f"Commande {commande_id} marquée comme payée avec succès",
+            "data": serializer.data
+        }
+    except Commande.DoesNotExist:
+        return {
+            "success": False,
+            "error": f"Commande {commande_id} non trouvée"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }

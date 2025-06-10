@@ -1,7 +1,7 @@
 from django.urls import path
 
 # Import des vues nécessaires
-from .views.product_views import product_list
+from .views.product_views import product_list, product_detail
 from .views.devis_views import devis_list, devis_detail, devis_accepter
 from .views.commande_views import commande_list, commande_detail, commande_payer, commande_livrer
 from .views.transport_views import transport_create, transport_update_status
@@ -45,6 +45,8 @@ urlpatterns = [
     
     # Product routes
     path('produits', product_list, name='product_list'),
+    path('produits/<int:pk>/', product_detail, name='product_detail'), 
+   
     
     # Devis routes
     path('devis', devis_list, name='devis_list'),
