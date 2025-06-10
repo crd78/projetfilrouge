@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   nginx:
@@ -45,6 +45,7 @@ services:
       - SERVER_ID=1
     depends_on:
       - db
+      - mongo
     command: >
       sh -c "
       echo 'Attente du démarrage de la base de données...' &&
@@ -109,7 +110,7 @@ services:
   db:
     image: mysql:8.0
     ports:
-      - "3307:3306"
+      - "3307:3306" # 3307 sur hôte, 3306 dans conteneur
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_DATABASE=django_api_db
@@ -127,5 +128,19 @@ services:
     depends_on:
       - db
 
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongadmin
+      - MONGO_INITDB_ROOT_PASSWORD=1234
+    ports:
+      - "27017:27017" # 27017 sur hôte, 27017 dans conteneur
+    volumes:
+      - mongodata:/data/db
+
 volumes:
   mysql_data:
+  mongodata:
+    driver: local
