@@ -29,10 +29,12 @@ class Vehicule(models.Model):
         default='DISPONIBLE',
         verbose_name="Statut du véhicule"
     )
-    LastDateMaintenance = models.DateField(
-        verbose_name="Dernière date de maintenance",
+    IdMaintenance = models.ForeignKey(
+        'Maintenance',
+        on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name="Dernière maintenance"
     )
     Immatriculation = models.CharField(max_length=20, verbose_name="Immatriculation", blank=True)
     DateCreation = models.DateTimeField(auto_now_add=True)
