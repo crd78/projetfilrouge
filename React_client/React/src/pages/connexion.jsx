@@ -1,46 +1,78 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import "./connexion.css";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFacebook, faInstagram, faXTwitter, faLinkedin } from "@fortawesome/free-brands-svg-icons";
 
-const Connexion = () => {
+export default function Connexion() {
+  const [identifiant, setIdentifiant] = useState("");
+  const [motdepasse, setMotdepasse] = useState("");
+  const [erreur, setErreur] = useState("");
+  const { user, login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleConnexion = (e) => {
+    e.preventDefault();
+    if (
+      identifiant === user.identifiant &&
+      motdepasse === user.motdepasse
+    ) {
+      login();
+      navigate("/accueil");
+    } else {
+      setErreur("Identifiant ou mot de passe incorrect");
+    }
+  };
+
   return (
     <div className="connexion-container">
-      <nav className="navbar">
-        <a href="/connexion" className="nav-link">Connexion</a>
-        <a href="/inscription" className="nav-link">Inscription</a>
-      </nav>
-
       <div className="content">
         <div className="left-side">
-          <h1>Connectez - Vous</h1>
-          <p>Vous pouvez également nous suivre sur les différents réseaux sociaux</p>
+          <h1>Connectez&nbsp;–&nbsp;Vous</h1>
+          <p>
+            Vous pouvez également nous suivre sur les différents réseaux sociaux
+          </p>
           <div className="social-icons">
-            <i className="fab fa-facebook-f"></i>
-            <i className="fab fa-instagram"></i>
-            <i className="fab fa-x-twitter"></i>
-            <i className="fab fa-linkedin-in"></i>
+            <a href="#"><FontAwesomeIcon icon={faFacebook} /></a>
+            <a href="#"><FontAwesomeIcon icon={faInstagram} /></a>
+            <a href="#"><FontAwesomeIcon icon={faXTwitter} /></a>
+            <a href="#"><FontAwesomeIcon icon={faLinkedin} /></a>
           </div>
         </div>
-
         <div className="right-side">
-          <form className="login-form">
-            <label>Email</label>
-            <input type="text" placeholder="John Trangely" />
+          <form className="login-form" onSubmit={handleConnexion}>
+            <label>Identifiant</label>
+            <input
+              type="text"
+              value={identifiant}
+              onChange={e => setIdentifiant(e.target.value)}
+              placeholder="Votre identifiant"
+              autoComplete="username"
+            />
             <label>Mot de Passe</label>
-            <input type="password" placeholder="hello@nrs.com" />
-            <button type="submit">Send Message →</button>
+            <input
+              type="password"
+              value={motdepasse}
+              onChange={e => setMotdepasse(e.target.value)}
+              placeholder="Votre mot de passe"
+              autoComplete="current-password"
+            />
+            {erreur && (
+              <div style={{ color: "red", marginBottom: "10px" }}>{erreur}</div>
+            )}
+            <button type="submit">
+              Se connecter <span style={{ marginLeft: 8 }}>→</span>
+            </button>
           </form>
         </div>
       </div>
-
       <div className="images-container">
-        {/* Tu peux remplacer les src par tes vraies images */}
-        <img src="/img1.jpg" alt="boulangerie1" />
-        <img src="/img2.jpg" alt="boulangerie2" />
-        <img src="/img3.jpg" alt="boulangerie3" />
-        <img src="/img4.jpg" alt="boulangerie4" />
+        <img src="/B1.jpg" alt="boulangerie1" />
+        <img src="/B2.jpg" alt="boulangerie2" />
+        <img src="/B3.jpg" alt="boulangerie3" />
+        <img src="/B4.jpg" alt="boulangerie4" />
       </div>
     </div>
   );
-};
-
-export default Connexion;
+}

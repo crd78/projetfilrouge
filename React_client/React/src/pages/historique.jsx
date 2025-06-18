@@ -1,93 +1,249 @@
-import React, { useState } from 'react';
-import './historique.css';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import "./historique.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown, faArrowUpRightFromSquare, faBell, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 export default function Historique() {
-  const [showSearch, setShowSearch] = useState(false);
-  const navigate = useNavigate();
-
-  const commandes = [
-    { numero: 'XXX-YZ91', status: 'Livrée', dateCommande: '01-03-25', dateLivraison: '01-04-25', ht: '325,56', ttc: '449.99' },
-    { numero: 'XXX-PQ91', status: 'En cours', dateCommande: '31-03-25', dateLivraison: '15-04-25', ht: '85,73', ttc: '99.99' },
-    { numero: 'ZDF-DE75', status: 'Refusée', dateCommande: '21-02-25', dateLivraison: 'N/A', ht: '651.38', ttc: '699.99' },
-    { numero: 'ABC-YZ00', status: 'Annulée', dateCommande: '01-01-25', dateLivraison: 'N/A', ht: '253.81', ttc: '299.99' },
-    { numero: 'LOL-PZ25', status: 'Livrée', dateCommande: '16-04-24', dateLivraison: '31-04-24', ht: '145,32', ttc: '199.99' },
-    { numero: 'AAA-BB12', status: 'Livrée', dateCommande: '02-02-25', dateLivraison: '05-02-25', ht: '980,00', ttc: '1099.99' },
-    { numero: 'BBB-CC34', status: 'En cours', dateCommande: '18-03-25', dateLivraison: '25-03-25', ht: '120,00', ttc: '143.99' },
-    { numero: 'CCC-DD56', status: 'Refusée', dateCommande: '12-02-25', dateLivraison: 'N/A', ht: '760,00', ttc: '888.00' },
-  ];
-
-  const getBadgeClass = (status) => {
-    switch (status) {
-      case 'Livrée': return 'badge green';
-      case 'En cours': return 'badge yellow';
-      case 'Refusée': return 'badge red';
-      case 'Annulée': return 'badge gray';
-      default: return 'badge';
-    }
-  };
-
   return (
-    <>
-      {/* NAVBAR */}
-      <nav className="navbar">
+    <div>
+      {/* Barre de navigation */}
+      <nav className="header-bar">
         <ul className="nav-left">
-          <li onClick={() => navigate('/accueil')}>Accueil</li>
-          <li onClick={() => navigate('/produits')}>Produits</li>
-          <li className="active" onClick={() => navigate('/historique')}>Mes Commandes</li>
-          <li onClick={() => navigate('/support')}>Support</li>
+          <li>Accueil</li>
+          <li>
+            Produits <FontAwesomeIcon icon={faChevronDown} style={{fontSize: "0.8em"}} />
+          </li>
+          <li className="active">
+            Mes Commandes <FontAwesomeIcon icon={faChevronDown} style={{fontSize: "0.8em", color: "#d59e00"}} />
+          </li>
+          <li>Support</li>
         </ul>
-
         <div className="nav-right">
-          <button onClick={() => setShowSearch(!showSearch)} className="search-icon">🔍</button>
-          {showSearch && <input type="text" className="search-input" placeholder="Rechercher..." />}
-          <div className="icon" title="Notifications">🔔</div>
-          <img
-            src="/avatar.jpg"
-            alt="Profil"
-            className="avatar"
-            onClick={() => navigate('/profil')}
-            title="Voir profil"
-          />
+          <button className="icon-button">
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
+          </button>
+          <button className="icon-button">
+            <FontAwesomeIcon icon={faBell} />
+          </button>
+          <div className="user-info">
+            <img className="avatar" src="/avatar.jpg" alt="avatar" />
+            <div className="user-text">
+              <span className="user-name">Valentin Faker</span>
+              <span className="user-role">Boulangerie du Parc</span>
+            </div>
+          </div>
         </div>
       </nav>
 
-      {/* CONTENU */}
-      <div className="historique-container">
-        <h1 className="page-title">Historique de mes commandes</h1>
+      {/* Contenu principal */}
+      <div className="historique-page">
+        <div className="historique-container">
+          <div className="page-title">Historique de mes commandes</div>
 
-        {commandes.map((cmd, index) => (
-          <div className="commande-box" key={index}>
+          {/* Commande 1 */}
+          <div className="commande-box">
             <div className="commande-info">
-              <span className="label">Numéro de Commande</span>
-              <span className="value bold">{cmd.numero}</span>
+              <div className="label">Numéro de Commande</div>
+              <div className="value bold">XXX-YZ91</div>
             </div>
             <div className="commande-info">
-              <span className="label">Status</span>
-              <span className={getBadgeClass(cmd.status)}>{cmd.status}</span>
+              <div className="label">Status</div>
+              <span className="badge green">Livrée</span>
             </div>
             <div className="commande-info">
-              <span className="label">Date Commande</span>
-              <span className="value">{cmd.dateCommande}</span>
+              <div className="label">Date Commande</div>
+              <div className="value">01-03-25</div>
             </div>
             <div className="commande-info">
-              <span className="label">Date Livraison</span>
-              <span className="value">{cmd.dateLivraison}</span>
+              <div className="label">Date Livraison</div>
+              <div className="value">01-04-25</div>
             </div>
             <div className="commande-info">
-              <span className="label">Total HT</span>
-              <span className="value">{cmd.ht}</span>
+              <div className="label">Total HT</div>
+              <div className="value bold">325,56</div>
             </div>
             <div className="commande-info">
-              <span className="label">Total TTC</span>
-              <span className="value">{cmd.ttc}</span>
+              <div className="label">Total TTC</div>
+              <div className="value bold">449.99</div>
             </div>
             <div className="commande-info">
-              <span className="detail-link">Voir le détail ↗</span>
+              <div className="label" style={{opacity:0}}>_</div>
+              <div className="detail-link">
+                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
+              </div>
             </div>
           </div>
-        ))}
+
+          {/* Commande 2 */}
+          <div className="commande-box">
+            <div className="commande-info">
+              <div className="label">Numéro de Commande</div>
+              <div className="value bold">XXX-PQ91</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Status</div>
+              <span className="badge yellow">En cours</span>
+            </div>
+            <div className="commande-info">
+              <div className="label">Date Commande</div>
+              <div className="value">31-03-25</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Date Livraison</div>
+              <div className="value">15-04-25</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Total HT</div>
+              <div className="value bold">85,73</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Total TTC</div>
+              <div className="value bold">99.99</div>
+            </div>
+            <div className="commande-info">
+              <div className="label" style={{opacity:0}}>_</div>
+              <div className="detail-link">
+                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
+              </div>
+            </div>
+          </div>
+
+          {/* Commande 3 */}
+          <div className="commande-box">
+            <div className="commande-info">
+              <div className="label">Numéro de Commande</div>
+              <div className="value bold">ZDF-DE75</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Status</div>
+              <span className="badge red">Refusée</span>
+            </div>
+            <div className="commande-info">
+              <div className="label">Date Commande</div>
+              <div className="value">21-02-25</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Date Livraison</div>
+              <div className="value">N/A</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Total HT</div>
+              <div className="value bold">651.38</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Total TTC</div>
+              <div className="value bold">699.99</div>
+            </div>
+            <div className="commande-info">
+              <div className="label" style={{opacity:0}}>_</div>
+              <div className="detail-link">
+                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
+              </div>
+            </div>
+          </div>
+
+          {/* Commande 4 */}
+          <div className="commande-box">
+            <div className="commande-info">
+              <div className="label">Numéro de Commande</div>
+              <div className="value bold">ABC-YZ00</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Status</div>
+              <span className="badge gray">Annulée</span>
+            </div>
+            <div className="commande-info">
+              <div className="label">Date Commande</div>
+              <div className="value">01-01-25</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Date Livraison</div>
+              <div className="value">N/A</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Total HT</div>
+              <div className="value bold">253.81</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Total TTC</div>
+              <div className="value bold">299.99</div>
+            </div>
+            <div className="commande-info">
+              <div className="label" style={{opacity:0}}>_</div>
+              <div className="detail-link">
+                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
+              </div>
+            </div>
+          </div>
+
+          {/* Commande 5 */}
+          <div className="commande-box">
+            <div className="commande-info">
+              <div className="label">Numéro de Commande</div>
+              <div className="value bold">LOL-PZ25</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Status</div>
+              <span className="badge green">Livrée</span>
+            </div>
+            <div className="commande-info">
+              <div className="label">Date Commande</div>
+              <div className="value">16-04-24</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Date Livraison</div>
+              <div className="value">31-04-24</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Total HT</div>
+              <div className="value bold">145,32</div>
+            </div>
+            <div className="commande-info">
+              <div className="label">Total TTC</div>
+              <div className="value bold">199.99</div>
+            </div>
+            <div className="commande-info">
+              <div className="label" style={{opacity:0}}>_</div>
+              <div className="detail-link">
+                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
+              </div>
+            </div>
+          </div>
+          {/* Commande 6 */}
+<div className="commande-box">
+  <div className="commande-info">
+    <div className="label">Numéro de Commande</div>
+    <div className="value bold">XYZ-RT12</div>
+  </div>
+  <div className="commande-info">
+    <div className="label">Status</div>
+    <span className="badge yellow">En cours</span>
+  </div>
+  <div className="commande-info">
+    <div className="label">Date Commande</div>
+    <div className="value">08-06-25</div>
+  </div>
+  <div className="commande-info">
+    <div className="label">Date Livraison</div>
+    <div className="value">20-06-25</div>
+  </div>
+  <div className="commande-info">
+    <div className="label">Total HT</div>
+    <div className="value bold">110.50</div>
+  </div>
+  <div className="commande-info">
+    <div className="label">Total TTC</div>
+    <div className="value bold">132.60</div>
+  </div>
+  <div className="commande-info">
+    <div className="label" style={{opacity:0}}>_</div>
+    <div className="detail-link">
+      Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
+    </div>
+  </div>
+</div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
