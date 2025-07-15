@@ -2,7 +2,7 @@
 from .user_views import register_user, user_list
 from .product_views import hello_world, item_list, product_list, product_detail
 from .personne_views import personne_list
-from .devis_views import devis_list, devis_detail, client_devis_list
+from .devis_views import devis_list, devis_detail
 from .ristourne_views import (
     ristourne_list, ristourne_detail, 
     devis_ristournes_list, commercial_ristournes_list  # Changé client_ristournes_list en devis_ristournes_list

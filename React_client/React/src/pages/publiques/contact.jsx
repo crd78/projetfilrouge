@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './contact.css';
-import API_CONFIG from '../api.config.js';
+import API_CONFIG from '../../api.config.js';
 
 const Contact = () => {
   const navigate = useNavigate();

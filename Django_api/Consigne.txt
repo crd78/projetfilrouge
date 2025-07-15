@@ -1,6 +1,0 @@
-rajouter @permission_classes([IsAuthenticated]) dans une route qui necessite que l'user soit connecter.
-
-exemple 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def entrepot_list(request):

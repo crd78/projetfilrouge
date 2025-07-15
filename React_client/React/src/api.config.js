@@ -13,6 +13,7 @@ const API_CONFIG = {
     REGISTER: 'api/client/inscription',  
     USERS: 'api/users',
     CONTACTS: 'api/contacts/',
+    DEVIS: 'api/devis/',
   },
   
   // Headers par défaut

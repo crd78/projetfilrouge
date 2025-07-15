@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './inscription.css';
-import API_CONFIG from '../api.config.js';
+import API_CONFIG from '../../api.config.js';
 
 const Inscription = () => {
   const navigate = useNavigate();

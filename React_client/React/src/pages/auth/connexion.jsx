@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./connexion.css";
-import API_CONFIG from "../api.config.js";
-import { useAuth } from "../context/AuthContext";
+import API_CONFIG from "../../api.config.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faInstagram, faXTwitter, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 
@@ -108,7 +108,7 @@ const Connexion = () => {
           setTimeout(() => {
             // Redirection conditionnelle selon le rôle
             if (userData.role === 2) { // Commercial
-              navigate('/dashboard');
+              navigate('/dashboard/Commercial');
             } else if (userData.role === 5) { // ChargéStock
               navigate('/stock');
             } else {

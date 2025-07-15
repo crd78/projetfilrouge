@@ -88,10 +88,20 @@ class UserSerializer(serializers.ModelSerializer):
     
 
 class DevisSerializer(serializers.ModelSerializer):
+    produits = serializers.PrimaryKeyRelatedField(many=True, queryset=Product.objects.all())
+    nomProduits = serializers.SerializerMethodField()
+    client = PersonneSerializer(source='IdClient', read_only=True)  # Ajout du lien client
+
     class Meta:
         model = Devis
-        fields = ['IdDevis', 'IdClient', 'idCommercial', 'MontantTotalHT', 'MontantTotalTTC', 'DateCreation', 'DateMiseAJour']
+        fields = [
+            'IdDevis', 'client', 'IdClient', 'idCommercial', 'MontantTotalHT', 'MontantTotalTTC',
+            'DateCreation', 'DateMiseAJour', 'produits', 'nomProduits'
+        ]
         read_only_fields = ['DateCreation', 'DateMiseAJour']
+
+    def get_nomProduits(self, obj):
+        return [p.NomProduit for p in obj.produits.all()]
 
 class RistourneSerializer(serializers.ModelSerializer):
     class Meta:

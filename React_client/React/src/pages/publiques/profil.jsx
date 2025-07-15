@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import "./profil.css";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Profil() {

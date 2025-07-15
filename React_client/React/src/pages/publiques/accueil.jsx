@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import "./accueil.css";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Accueil() {
   const { isLoggedIn, login, logout } = useContext(AuthContext);

@@ -5,22 +5,7 @@ from ..models import Devis, Commande
 from ..serializers import DevisSerializer
 from ..tasks import update_devis_task, accepter_devis_task  # Ajoute cet import
 
-@api_view(['GET', 'POST'])
-def devis_list(request):
-    """
-    Liste tous les devis ou crée un nouveau devis
-    """
-    if request.method == 'GET':
-        devis = Devis.objects.all()
-        serializer = DevisSerializer(devis, many=True)
-        return Response(serializer.data)
-    
-    elif request.method == 'POST':
-        serializer = DevisSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def devis_detail(request, id):
@@ -53,17 +38,24 @@ def devis_detail(request, id):
         devis.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-@api_view(['GET'])
-def client_devis_list(request, client_id):
-    """
-    Liste tous les devis d'un client spécifique
-    """
-    try:
-        devis = Devis.objects.filter(IdClient=client_id)
+@api_view(['GET', 'POST'])
+def devis_list(request):
+    if request.method == 'GET':
+        approuver = request.GET.get('Approuver')
+        devis = Devis.objects.all()
+        if approuver is not None:
+            approuver_bool = approuver.lower() in ['true', '1', 'yes']
+            devis = devis.filter(Approuver=approuver_bool)
         serializer = DevisSerializer(devis, many=True)
         return Response(serializer.data)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'POST':
+        serializer = DevisSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
 def devis_accepter(request, id):

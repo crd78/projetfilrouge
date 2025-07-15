@@ -1,5 +1,6 @@
 from django.db import models
 from .personne import Personne
+from .product import Product
 
 class Devis(models.Model):
     IdDevis = models.AutoField(primary_key=True)
@@ -17,22 +18,18 @@ class Devis(models.Model):
         related_name='devis_crees',
         verbose_name="Commercial"
     )
-    MontantTotalHT = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        verbose_name="Montant total HT"
-    )
-    MontantTotalTTC = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        verbose_name="Montant total TTC"
-    )
+    produits = models.ManyToManyField(Product, related_name='devis', verbose_name="Produits du devis")
+    MontantTotalHT = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Montant total HT")
+    MontantTotalTTC = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Montant total TTC")
     DateCreation = models.DateTimeField(auto_now_add=True)
     DateMiseAJour = models.DateTimeField(auto_now=True)
-    
+    Approuver = models.BooleanField(default=False)
+
     def __str__(self):
-        return f"Devis #{self.IdDevis} - {self.IdClient.prenom} {self.IdClient.nom}"
-    
+        # Affiche le nom et prénom du client si possible
+        client_info = f"{self.IdClient.prenom} {self.IdClient.nom}" if self.IdClient else "Client inconnu"
+        return f"Devis #{self.IdDevis} - Client: {client_info}"
+
     class Meta:
         verbose_name = "Devis"
         verbose_name_plural = "Devis"

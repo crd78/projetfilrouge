@@ -2,16 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Accueil from "./pages/accueil";
-import Historique from "./pages/historique";
-import Connexion from "./pages/connexion";
-import Inscription from "./pages/inscription";
-import Contact from "./pages/contact";
-import Profil from "./pages/profil";
+import Accueil from "./pages/publiques/accueil";
+import Historique from "./pages/publiques/historique";
+import Connexion from "./pages/auth/connexion";
+import Inscription from "./pages/publiques/inscription";
+import Contact from "./pages/publiques/contact";
+import Profil from "./pages/publiques/profil";
 import Layout from "./components/Layout";
 import { AuthProvider } from "./context/AuthContext";
-import Dashboard from "./pages/dashboard";
-import ProtectedRoute from "./context/ProtectedRoute"; // ✅ Correction : context au lieu de components
+import Dashboard from "./pages/dashboard/dashboardCommercial";
+import ProtectedRoute from "./context/ProtectedRoute"; 
+import DemandesDevis from "./pages/devis/demandes-devis";
+import ListeProduit from "./pages/produits/liste_produit";
+import NouveauDevis from "./pages/devis/nouveau-devis";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -24,17 +27,33 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           
           {/* Route protégée pour le dashboard - ROLE COMMERCIAL (2) REQUIS */}
           <Route 
-            path="/dashboard" 
+            path="/dashboard/commercial" 
             element={
               <ProtectedRoute requiredRole={2}>
                 <Dashboard />
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/devis/demandes-devis" 
+            element={
+              <ProtectedRoute requiredRole={2}>
+                <DemandesDevis />
+              </ProtectedRoute>
+            } 
+          />
+          <Route
+            path="/devis/nouveau" 
+            element={
+              <ProtectedRoute requiredRole={2}>
+                <NouveauDevis />
+              </ProtectedRoute>
+            }
+          />
           
           {/* Route protégée pour la gestion des stocks - ROLE CHARGÉ STOCK (5) REQUIS */}
           <Route 
-            path="/stock" 
+            path="/dashboard/stock" 
             element={
               <ProtectedRoute requiredRole={5}>
                 <div>Page de gestion des stocks (à créer)</div>
@@ -59,6 +78,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="/contact" element={<Contact />} />
             <Route path="/historique" element={<Historique />} />
             <Route path="/profil" element={<Profil />} />
+            <Route path="/produits" element={<ListeProduit />} />
           </Route>
         </Routes>
       </BrowserRouter>
