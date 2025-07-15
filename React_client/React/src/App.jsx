@@ -5,6 +5,9 @@ import Accueil from './pages/accueil';
 import Historique from './pages/historique';
 import Connexion from './pages/connexion';
 import Inscription from './pages/inscription';
+import Detail from './pages/Detail';
+import Produit from './pages/Produit';
+import MdpOublié from './pages/mdpOublié';
 
 export default function App() {
   return (
@@ -15,6 +18,9 @@ export default function App() {
           <Route path="/mes-commandes" element={<Historique />} />
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/inscription" element={<Inscription />} />
+          <Route path="/detail" element={<Detail />} />
+          <Route path="/produit" element={<Produit />} />
+          <Route path="/mdp-oublie" element={<MdpOublié />} />
         </Routes>
       </Router>
     </AuthProvider>

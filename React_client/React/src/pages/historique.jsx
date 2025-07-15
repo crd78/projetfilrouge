@@ -2,11 +2,155 @@ import React from "react";
 import "./historique.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faArrowUpRightFromSquare, faBell, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 export default function Historique() {
+  const navigate = useNavigate();
+
+  // Toutes les commandes sous forme d'objets
+  const commandes = [
+    {
+      numero: "XXX-YZ91",
+      status: { label: "Livrée", color: "green" },
+      dateCommande: "01-03-25",
+      dateLivraison: "01-04-25",
+      totalHT: "325,56",
+      totalTTC: "449.99",
+      articles: [
+        { nom: "Farine de blé T55", quantite: 10, prix: 3, total: 30 },
+        { nom: "Beurre Demi-sel 500g", quantite: 30, prix: 5, total: 150 },
+        { nom: "Levure Chimique", quantite: 200, prix: 0.35, total: 70 },
+        { nom: "Levure Boulangère", quantite: 100, prix: 0.5, total: 50 }
+      ],
+      sousTotal: 300,
+      commission: 29.99,
+      total: 329.99,
+      client: {
+        nom: "M. Valentin Faker",
+        etablissement: "Boulangerie du Parc",
+        siret: "548 697 120",
+        adresse: "23 Rue du Parc<br />aux Lièvres<br />91000 Evry-Courcouronnes"
+      }
+    },
+    {
+      numero: "XXX-PQ91",
+      status: { label: "En cours", color: "yellow" },
+      dateCommande: "31-03-25",
+      dateLivraison: "15-04-25",
+      totalHT: "85,73",
+      totalTTC: "99.99",
+      articles: [
+        { nom: "Levure Chimique", quantite: 100, prix: 0.35, total: 35 },
+        { nom: "Levure Boulangère", quantite: 50, prix: 0.5, total: 25 },
+        { nom: "Farine de blé T55", quantite: 5, prix: 3, total: 15 },
+        { nom: "Beurre Demi-sel 500g", quantite: 5, prix: 5, total: 25 }
+      ],
+      sousTotal: 85,
+      commission: 14.99,
+      total: 99.99,
+      client: {
+        nom: "M. Valentin Faker",
+        etablissement: "Boulangerie du Parc",
+        siret: "548 697 120",
+        adresse: "23 Rue du Parc<br />aux Lièvres<br />91000 Evry-Courcouronnes"
+      }
+    },
+    {
+      numero: "ZDF-DE75",
+      status: { label: "Refusée", color: "red" },
+      dateCommande: "21-02-25",
+      dateLivraison: "N/A",
+      totalHT: "651.38",
+      totalTTC: "699.99",
+      articles: [
+        { nom: "Farine de blé T55", quantite: 100, prix: 3, total: 300 },
+        { nom: "Beurre Demi-sel 500g", quantite: 50, prix: 5, total: 250 },
+        { nom: "Levure Chimique", quantite: 200, prix: 0.35, total: 70 },
+        { nom: "Levure Boulangère", quantite: 60, prix: 0.5, total: 30 }
+      ],
+      sousTotal: 651,
+      commission: 48.99,
+      total: 699.99,
+      client: {
+        nom: "M. Valentin Faker",
+        etablissement: "Boulangerie du Parc",
+        siret: "548 697 120",
+        adresse: "23 Rue du Parc<br />aux Lièvres<br />91000 Evry-Courcouronnes"
+      }
+    },
+    {
+      numero: "ABC-YZ00",
+      status: { label: "Annulée", color: "gray" },
+      dateCommande: "01-01-25",
+      dateLivraison: "N/A",
+      totalHT: "253.81",
+      totalTTC: "299.99",
+      articles: [
+        { nom: "Farine de blé T55", quantite: 20, prix: 3, total: 60 },
+        { nom: "Beurre Demi-sel 500g", quantite: 10, prix: 5, total: 50 },
+        { nom: "Levure Chimique", quantite: 100, prix: 0.35, total: 35 },
+        { nom: "Levure Boulangère", quantite: 80, prix: 0.5, total: 40 }
+      ],
+      sousTotal: 253.81,
+      commission: 46.18,
+      total: 299.99,
+      client: {
+        nom: "M. Valentin Faker",
+        etablissement: "Boulangerie du Parc",
+        siret: "548 697 120",
+        adresse: "23 Rue du Parc<br />aux Lièvres<br />91000 Evry-Courcouronnes"
+      }
+    },
+    {
+      numero: "LOL-PZ25",
+      status: { label: "Livrée", color: "green" },
+      dateCommande: "16-04-24",
+      dateLivraison: "31-04-24",
+      totalHT: "145,32",
+      totalTTC: "199.99",
+      articles: [
+        { nom: "Farine de blé T55", quantite: 10, prix: 3, total: 30 },
+        { nom: "Beurre Demi-sel 500g", quantite: 10, prix: 5, total: 50 },
+        { nom: "Levure Chimique", quantite: 100, prix: 0.35, total: 35 },
+        { nom: "Levure Boulangère", quantite: 60, prix: 0.5, total: 30 }
+      ],
+      sousTotal: 170,
+      commission: 29.99,
+      total: 199.99,
+      client: {
+        nom: "M. Valentin Faker",
+        etablissement: "Boulangerie du Parc",
+        siret: "548 697 120",
+        adresse: "23 Rue du Parc<br />aux Lièvres<br />91000 Evry-Courcouronnes"
+      }
+    },
+    {
+      numero: "XYZ-RT12",
+      status: { label: "En cours", color: "yellow" },
+      dateCommande: "08-06-25",
+      dateLivraison: "20-06-25",
+      totalHT: "110.50",
+      totalTTC: "132.60",
+      articles: [
+        { nom: "Farine de blé T55", quantite: 5, prix: 3, total: 15 },
+        { nom: "Beurre Demi-sel 500g", quantite: 10, prix: 5, total: 50 },
+        { nom: "Levure Chimique", quantite: 100, prix: 0.35, total: 35 },
+        { nom: "Levure Boulangère", quantite: 30, prix: 0.5, total: 15.00 }
+      ],
+      sousTotal: 120,
+      commission: 12.60,
+      total: 132.60,
+      client: {
+        nom: "M. Valentin Faker",
+        etablissement: "Boulangerie du Parc",
+        siret: "548 697 120",
+        adresse: "23 Rue du Parc<br />aux Lièvres<br />91000 Evry-Courcouronnes"
+      }
+    }
+  ];
+
   return (
     <div>
-      {/* Barre de navigation */}
       <nav className="header-bar">
         <ul className="nav-left">
           <li>Accueil</li>
@@ -34,214 +178,49 @@ export default function Historique() {
           </div>
         </div>
       </nav>
-
-      {/* Contenu principal */}
       <div className="historique-page">
         <div className="historique-container">
           <div className="page-title">Historique de mes commandes</div>
-
-          {/* Commande 1 */}
-          <div className="commande-box">
-            <div className="commande-info">
-              <div className="label">Numéro de Commande</div>
-              <div className="value bold">XXX-YZ91</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Status</div>
-              <span className="badge green">Livrée</span>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Commande</div>
-              <div className="value">01-03-25</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Livraison</div>
-              <div className="value">01-04-25</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total HT</div>
-              <div className="value bold">325,56</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total TTC</div>
-              <div className="value bold">449.99</div>
-            </div>
-            <div className="commande-info">
-              <div className="label" style={{opacity:0}}>_</div>
-              <div className="detail-link">
-                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
+          {commandes.map((commande) => (
+            <div className="commande-box" key={commande.numero}>
+              <div className="commande-info">
+                <div className="label">Numéro de Commande</div>
+                <div className="value bold">{commande.numero}</div>
+              </div>
+              <div className="commande-info">
+                <div className="label">Status</div>
+                <span className={`badge ${commande.status.color}`}>{commande.status.label}</span>
+              </div>
+              <div className="commande-info">
+                <div className="label">Date Commande</div>
+                <div className="value">{commande.dateCommande}</div>
+              </div>
+              <div className="commande-info">
+                <div className="label">Date Livraison</div>
+                <div className="value">{commande.dateLivraison}</div>
+              </div>
+              <div className="commande-info">
+                <div className="label">Total HT</div>
+                <div className="value bold">{commande.totalHT}</div>
+              </div>
+              <div className="commande-info">
+                <div className="label">Total TTC</div>
+                <div className="value bold">{commande.totalTTC}</div>
+              </div>
+              <div className="commande-info">
+                <div className="label" style={{opacity:0}}>_</div>
+                <div
+                  className="detail-link"
+                  style={{ cursor: "pointer" }}
+                  onClick={() =>
+                    navigate("/detail-cmd", { state: commande })
+                  }
+                >
+                  Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Commande 2 */}
-          <div className="commande-box">
-            <div className="commande-info">
-              <div className="label">Numéro de Commande</div>
-              <div className="value bold">XXX-PQ91</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Status</div>
-              <span className="badge yellow">En cours</span>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Commande</div>
-              <div className="value">31-03-25</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Livraison</div>
-              <div className="value">15-04-25</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total HT</div>
-              <div className="value bold">85,73</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total TTC</div>
-              <div className="value bold">99.99</div>
-            </div>
-            <div className="commande-info">
-              <div className="label" style={{opacity:0}}>_</div>
-              <div className="detail-link">
-                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
-              </div>
-            </div>
-          </div>
-
-          {/* Commande 3 */}
-          <div className="commande-box">
-            <div className="commande-info">
-              <div className="label">Numéro de Commande</div>
-              <div className="value bold">ZDF-DE75</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Status</div>
-              <span className="badge red">Refusée</span>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Commande</div>
-              <div className="value">21-02-25</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Livraison</div>
-              <div className="value">N/A</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total HT</div>
-              <div className="value bold">651.38</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total TTC</div>
-              <div className="value bold">699.99</div>
-            </div>
-            <div className="commande-info">
-              <div className="label" style={{opacity:0}}>_</div>
-              <div className="detail-link">
-                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
-              </div>
-            </div>
-          </div>
-
-          {/* Commande 4 */}
-          <div className="commande-box">
-            <div className="commande-info">
-              <div className="label">Numéro de Commande</div>
-              <div className="value bold">ABC-YZ00</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Status</div>
-              <span className="badge gray">Annulée</span>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Commande</div>
-              <div className="value">01-01-25</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Livraison</div>
-              <div className="value">N/A</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total HT</div>
-              <div className="value bold">253.81</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total TTC</div>
-              <div className="value bold">299.99</div>
-            </div>
-            <div className="commande-info">
-              <div className="label" style={{opacity:0}}>_</div>
-              <div className="detail-link">
-                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
-              </div>
-            </div>
-          </div>
-
-          {/* Commande 5 */}
-          <div className="commande-box">
-            <div className="commande-info">
-              <div className="label">Numéro de Commande</div>
-              <div className="value bold">LOL-PZ25</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Status</div>
-              <span className="badge green">Livrée</span>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Commande</div>
-              <div className="value">16-04-24</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Date Livraison</div>
-              <div className="value">31-04-24</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total HT</div>
-              <div className="value bold">145,32</div>
-            </div>
-            <div className="commande-info">
-              <div className="label">Total TTC</div>
-              <div className="value bold">199.99</div>
-            </div>
-            <div className="commande-info">
-              <div className="label" style={{opacity:0}}>_</div>
-              <div className="detail-link">
-                Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
-              </div>
-            </div>
-          </div>
-          {/* Commande 6 */}
-<div className="commande-box">
-  <div className="commande-info">
-    <div className="label">Numéro de Commande</div>
-    <div className="value bold">XYZ-RT12</div>
-  </div>
-  <div className="commande-info">
-    <div className="label">Status</div>
-    <span className="badge yellow">En cours</span>
-  </div>
-  <div className="commande-info">
-    <div className="label">Date Commande</div>
-    <div className="value">08-06-25</div>
-  </div>
-  <div className="commande-info">
-    <div className="label">Date Livraison</div>
-    <div className="value">20-06-25</div>
-  </div>
-  <div className="commande-info">
-    <div className="label">Total HT</div>
-    <div className="value bold">110.50</div>
-  </div>
-  <div className="commande-info">
-    <div className="label">Total TTC</div>
-    <div className="value bold">132.60</div>
-  </div>
-  <div className="commande-info">
-    <div className="label" style={{opacity:0}}>_</div>
-    <div className="detail-link">
-      Voir le détail <FontAwesomeIcon icon={faArrowUpRightFromSquare} style={{fontSize: "0.9em"}} />
-    </div>
-  </div>
-</div>
+          ))}
         </div>
       </div>
     </div>

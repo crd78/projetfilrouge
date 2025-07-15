@@ -58,6 +58,25 @@ export default function Connexion() {
               placeholder="Votre mot de passe"
               autoComplete="current-password"
             />
+            <button
+              type="button"
+              className="mdp-oublie-link"
+              style={{
+                background: "none",
+                border: "none",
+                color: "#b0893f",
+                textAlign: "left",
+                margin: "8px 0 0 0",
+                cursor: "pointer",
+                fontSize: "1rem",
+                fontWeight: 500,
+                padding: 0,
+                textDecoration: "underline"
+              }}
+              onClick={() => navigate("/mdp-oublie")}
+            >
+              Mot de passe oublié ?
+            </button>
             {erreur && (
               <div style={{ color: "red", marginBottom: "10px" }}>{erreur}</div>
             )}

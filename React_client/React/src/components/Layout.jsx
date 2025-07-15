@@ -3,7 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import "./Layout.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell} from "@fortawesome/free-solid-svg-icons";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
 
 export default function Layout() {
   const { isLoggedIn, user } = useContext(AuthContext);
@@ -14,6 +14,7 @@ export default function Layout() {
   const isActive = (path) => {
     if (path === "/accueil" && (location.pathname === "/" || location.pathname === "/accueil")) return true;
     if (path === "/historique" && location.pathname === "/historique") return true;
+    if (path === "/produit" && location.pathname === "/produit") return true;
     return false;
   };
 
@@ -41,16 +42,16 @@ export default function Layout() {
           <li className="dropdown">
             Nos Prestations
             <ul className="dropdown-content">
-              <li>Test 1</li>
-              <li>Test 2</li>
+              <li style={{display: "none"}}>Test 1</li>
+              <li style={{display: "none"}}>Test 2</li>
             </ul>
           </li>
-          <li className="dropdown">
+          <li
+            onClick={() => navigate("/produit")}
+            className={isActive("/produit") ? "active" : ""}
+            style={{ cursor: "pointer" }}
+          >
             Nos Produits
-            <ul className="dropdown-content">
-              <li>Test 3</li>
-              <li>Test 4</li>
-            </ul>
           </li>
           <li onClick={() => navigate("/contact")}>Contact</li>
           <li onClick={() => navigate("/historique")} className={isActive("/historique") ? "active" : ""}>Mes Commandes</li>

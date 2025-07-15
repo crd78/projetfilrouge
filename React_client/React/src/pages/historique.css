@@ -2,7 +2,8 @@ body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
   background: #fff;
-  overflow: scroll;
+  overflow-y: auto;
+  height: 100%;
 }
 
 .header-bar {
@@ -91,11 +92,14 @@ body {
 }
 
 .historique-page {
-  padding-top: 0rem;
-  background: #fff; /* Ajoute cette ligne si besoin */
+  /* Ajoute un padding-top pour compenser le header fixe */
+  padding-top: 5.5rem;
+  background: #fff;
   min-height: 100vh;
   height: auto;
-  box-sizing: border-box; /* Pour compenser le header fixe */
+  box-sizing: border-box;
+  /* PAS de overflow: hidden ni de overflow: scroll ici */
+  overflow-y: auto;
 }
 
 .historique-container {
