@@ -38,3 +38,5 @@ from .maintenance_views import (
     vehicule_maintenances, collaborateur_maintenances,
     update_maintenance_status, maintenances_by_status
 )
+
+from .contact_views import contact_list, contact_detail, contact_marquer_traite

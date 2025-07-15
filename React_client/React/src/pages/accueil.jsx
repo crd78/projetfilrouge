@@ -23,7 +23,7 @@ export default function Accueil() {
         </div>
       </header>
 
-      <img className="accueil-image" src="/AccueilB.jpg" alt="Boulangerie" />
+      <img className="accueil-image" src="/src/assets/image/AccueilB.jpg" alt="Boulangerie" />
     </div>
   );
 }

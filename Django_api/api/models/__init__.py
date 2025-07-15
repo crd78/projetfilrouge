@@ -12,3 +12,4 @@ from .detailCommande import DetailsCommande
 from .personne import Personne
 from .maintenance import Maintenance
 from .livreur import Livreur  
+from .contact import Contact

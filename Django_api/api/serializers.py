@@ -7,7 +7,7 @@ from .models import (
     Vehicule, Transport, Livraison,
     DetailsCommande, Maintenance, Personne,Livreur  # Client a été fusionné dans Personne
 )
-
+from .models import Contact
 
 class PersonneSerializer(serializers.ModelSerializer):
     class Meta:
@@ -150,3 +150,9 @@ class MaintenanceSerializer(serializers.ModelSerializer):
                   'DureeMaintenance', 'StatutMaintenance', 'DateFinMaintenance',
                   'DateCreation', 'DateMiseAJour']
         read_only_fields = ['DateCreation', 'DateMiseAJour']
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = '__all__'
+        read_only_fields = ('date_creation',)

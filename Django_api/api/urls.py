@@ -31,6 +31,8 @@ from .views.livraison_views import (
     livraisons_by_statut, update_livraison_status
 )
 from .views.health_views import health_check, simple_test,test_celery
+from .views.contact_views import contact_list, contact_detail, contact_marquer_traite
+
 
 
 urlpatterns = [
@@ -112,6 +114,10 @@ urlpatterns = [
     path('livraisons/status/<str:statut>', livraisons_by_statut, name='livraisons_by_statut'),
     path('livraisons/<int:pk>/status/<str:statut>', update_livraison_status, name='update_livraison_status'),
 
+    path('contacts/', contact_list, name='contact_list'),
+    path('contacts/<int:pk>/', contact_detail, name='contact_detail'),
+    path('contacts/<int:pk>/traite/', contact_marquer_traite, name='contact_marquer_traite'),
+    
 
     # Statistiques desktop
      path('stats', stats_list, name='stats_list'),

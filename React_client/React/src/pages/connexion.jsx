@@ -1,9 +1,15 @@
-<<<<<<< HEAD
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./connexion.css";
 import API_CONFIG from "../api.config.js";
+import { useAuth } from "../context/AuthContext";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFacebook, faInstagram, faXTwitter, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 
 const Connexion = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth(); // Utilise le hook useAuth
+  
   // États pour gérer le formulaire, le chargement et les messages
   const [formData, setFormData] = useState({
     email: '',
@@ -22,104 +28,107 @@ const Connexion = () => {
   };
 
   // Fonction d'appel à l'API de connexion
-  const login = async (credentials) => {
+   const loginAPI = async (credentials) => {
     try {
-      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
+      const finalUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`;
+      console.log('🔗 URL de connexion:', finalUrl);
+      console.log('📤 Données envoyées:', credentials);
+      
+      const response = await fetch(finalUrl, {
         method: 'POST',
         headers: API_CONFIG.DEFAULT_HEADERS,
         body: JSON.stringify(credentials)
       });
       
+      console.log('📡 Status de la réponse:', response.status);
+      
       // Traitement de la réponse
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Données reçues:', data);
         return { success: true, data };
       }
       
       // Gestion des erreurs
       try {
         const errorData = await response.json();
+        console.log('❌ Erreur reçue:', errorData);
         return { success: false, message: errorData.message || 'Identifiants incorrects' };
       } catch (e) {
+        console.log('❌ Erreur de parsing:', e);
         return { success: false, message: `Erreur lors de la connexion (${response.status})` };
       }
     } catch (error) {
-      console.error("Erreur lors de la connexion:", error);
+      console.error("❌ Erreur réseau:", error);
       throw error;
     }
   };
 
   // Gestion de la soumission du formulaire
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation basique
     if (!formData.email || !formData.password) {
       setMessage({ text: 'Veuillez remplir tous les champs', type: 'error' });
       return;
     }
     
-    // Début de la tentative de connexion
     setIsLoading(true);
     setMessage({ text: '', type: '' });
     
     try {
-      const result = await login({
+      const result = await loginAPI({
         email: formData.email,
         password: formData.password
       });
       
+      console.log('🔍 Résultat complet de l\'API:', result);
+      
       if (result.success) {
-        // Sauvegarde du token dans le localStorage si présent dans la réponse
-        if (result.data.token) {
-          localStorage.setItem('authToken', result.data.token);
+        // ✅ CORRECTION : Récupérer le rôle correctement
+        const userData = {
+          id: result.data.user?.id || Date.now(),
+          prenom: result.data.user?.prenom || 'Utilisateur',
+          nom: result.data.user?.nom || '',
+          email: result.data.user?.email || formData.email,
+          telephone: result.data.user?.telephone || '',
+          societe: result.data.user?.societe || '',
+          siret: result.data.user?.siret || '',
+          role: result.data.user?.role || result.data.role || 1 // ✅ Récupérer le rôle
+        };
+        
+        console.log('🔍 Données utilisateur préparées:', userData);
+        
+        const token = result.data.access;
+        
+        if (token) {
+          login(userData, token);
+          setMessage({ text: 'Connexion réussie! Redirection...', type: 'success' });
+          
+          setTimeout(() => {
+            // Redirection conditionnelle selon le rôle
+            if (userData.role === 2) { // Commercial
+              navigate('/dashboard');
+            } else if (userData.role === 5) { // ChargéStock
+              navigate('/stock');
+            } else {
+              navigate('/profil'); // ou une autre page pour les clients
+            }
+          }, 1500);
+        } else {
+          setMessage({ text: 'Token manquant dans la réponse', type: 'error' });
         }
-        
-        setMessage({ text: 'Connexion réussie!', type: 'success' });
-        
-        // Redirection après connexion réussie (après un court délai)
-        setTimeout(() => {
-          window.location.href = '/dashboard'; // ou toute autre page après connexion
-        }, 1500);
       } else {
-        setMessage({ text: result.message, type: 'error' });
+        setMessage({ text: result.message || 'Erreur de connexion', type: 'error' });
       }
     } catch (error) {
+      console.error('Erreur:', error);
       setMessage({ text: 'Erreur de connexion au serveur', type: 'error' });
     } finally {
       setIsLoading(false);
     }
   };
 
-=======
-import React, { useState, useContext } from "react";
-import "./connexion.css";
-import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebook, faInstagram, faXTwitter, faLinkedin } from "@fortawesome/free-brands-svg-icons";
-
-export default function Connexion() {
-  const [identifiant, setIdentifiant] = useState("");
-  const [motdepasse, setMotdepasse] = useState("");
-  const [erreur, setErreur] = useState("");
-  const { user, login } = useContext(AuthContext);
-  const navigate = useNavigate();
-
-  const handleConnexion = (e) => {
-    e.preventDefault();
-    if (
-      identifiant === user.identifiant &&
-      motdepasse === user.motdepasse
-    ) {
-      login();
-      navigate("/accueil");
-    } else {
-      setErreur("Identifiant ou mot de passe incorrect");
-    }
-  };
-
->>>>>>> feat/reactfront
   return (
     <div className="connexion-container">
       <div className="content">
@@ -136,7 +145,6 @@ export default function Connexion() {
           </div>
         </div>
         <div className="right-side">
-<<<<<<< HEAD
           {message.text && (
             <div className={`message ${message.type}`}>
               {message.text}
@@ -170,53 +178,18 @@ export default function Connexion() {
               className={isLoading ? 'loading-btn' : ''}
             >
               {isLoading ? 'Connexion...' : 'Se connecter'} {!isLoading && '→'}
-=======
-          <form className="login-form" onSubmit={handleConnexion}>
-            <label>Identifiant</label>
-            <input
-              type="text"
-              value={identifiant}
-              onChange={e => setIdentifiant(e.target.value)}
-              placeholder="Votre identifiant"
-              autoComplete="username"
-            />
-            <label>Mot de Passe</label>
-            <input
-              type="password"
-              value={motdepasse}
-              onChange={e => setMotdepasse(e.target.value)}
-              placeholder="Votre mot de passe"
-              autoComplete="current-password"
-            />
-            {erreur && (
-              <div style={{ color: "red", marginBottom: "10px" }}>{erreur}</div>
-            )}
-            <button type="submit">
-              Se connecter <span style={{ marginLeft: 8 }}>→</span>
->>>>>>> feat/reactfront
             </button>
           </form>
         </div>
       </div>
       <div className="images-container">
-<<<<<<< HEAD
-        <img src="/img1.jpg" alt="boulangerie1" />
-        <img src="/img2.jpg" alt="boulangerie2" />
-        <img src="/img3.jpg" alt="boulangerie3" />
-        <img src="/img4.jpg" alt="boulangerie4" />
+        <img src="/src/assets/image/B1.jpg" alt="boulangerie1" />
+        <img src="/src/assets/image/B2.jpg" alt="boulangerie2" />
+        <img src="/src/assets/image/B3.jpg" alt="boulangerie3" />
+        <img src="/src/assets/image/B4.jpg" alt="boulangerie4" />
       </div>
     </div>
   );
 };
 
 export default Connexion;
-=======
-        <img src="/B1.jpg" alt="boulangerie1" />
-        <img src="/B2.jpg" alt="boulangerie2" />
-        <img src="/B3.jpg" alt="boulangerie3" />
-        <img src="/B4.jpg" alt="boulangerie4" />
-      </div>
-    </div>
-  );
-}
->>>>>>> feat/reactfront

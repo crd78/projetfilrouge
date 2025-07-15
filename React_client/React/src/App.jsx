@@ -5,6 +5,7 @@ import Accueil from './pages/accueil';
 import Historique from './pages/historique';
 import Connexion from './pages/connexion';
 import Inscription from './pages/inscription';
+import Contact from './pages/contact';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/mes-commandes" element={<Historique />} />
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/inscription" element={<Inscription />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </Router>
     </AuthProvider>

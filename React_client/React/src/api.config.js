@@ -12,7 +12,7 @@ const API_CONFIG = {
     LOGIN: 'api/client/connexion ',
     REGISTER: 'api/client/inscription',  
     USERS: 'api/users',
-    // Ajoutez d'autres endpoints selon vos besoins
+    CONTACTS: 'api/contacts/',
   },
   
   // Headers par défaut

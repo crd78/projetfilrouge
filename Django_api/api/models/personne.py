@@ -25,7 +25,9 @@ class Personne(AbstractBaseUser, PermissionsMixin):
         (2, 'Commercial'),
         (3, 'Collaborateur'),
         (4, 'Fournisseur'),
+        (5, 'ChargéStock'),  
     ]
+    
     
     id = models.AutoField(primary_key=True)
     nom = models.CharField(max_length=100, verbose_name="Nom")
