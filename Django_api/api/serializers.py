@@ -15,11 +15,11 @@ class PersonneSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nom', 'prenom', 'telephone', 'email', 'password', 
             'adresse', 'role', 'fonction', 'code_postal', 'ville',
-            'raison_sociale', 'siret', 'date_creation', 'date_miseajour'
+            'raison_sociale', 'siret', 'date_creation', 'date_miseajour',
+            'valider'  # <-- AJOUTE CE CHAMP
         ]
         extra_kwargs = {'password': {'write_only': True}}
 
-  
     def create(self, validated_data):
         # Hash le mot de passe avant de l'enregistrer
         if 'password' in validated_data:

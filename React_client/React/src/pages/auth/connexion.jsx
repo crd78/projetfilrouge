@@ -85,7 +85,7 @@ const Connexion = () => {
       console.log('🔍 Résultat complet de l\'API:', result);
       
       if (result.success) {
-        // ✅ CORRECTION : Récupérer le rôle correctement
+  
         const userData = {
           id: result.data.user?.id || Date.now(),
           prenom: result.data.user?.prenom || 'Utilisateur',

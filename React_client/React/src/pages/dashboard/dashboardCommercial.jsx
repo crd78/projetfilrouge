@@ -325,12 +325,7 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-
       
-
-        {/* Nouveaux clients */}
-      
-
         {/* Ristournes récentes */}
         <div className="dashboard-section">
           <div className="section-header">
@@ -370,14 +365,7 @@ const Dashboard = () => {
       <div className="quick-actions">
         <h2 className="section-title">Actions rapides</h2>
         <div className="actions-grid">
-          <button 
-            className="action-btn"
-            onClick={() => navigate('/devis/nouveau')}
-          >
-            <span className="action-icon">📋</span>
-            Nouveau devis
-          </button>
-          
+        
           <button 
             className="action-btn"
             onClick={() => navigate('/devis/demandes-devis')}
@@ -385,38 +373,15 @@ const Dashboard = () => {
             <span className="action-icon">🔔</span>
             Voir demandes ({stats.demandesEnAttente})
           </button>
-
-          <button 
-            className="action-btn"
-            onClick={() => navigate('/clients/nouveau')}
-          >
-            <span className="action-icon">👤</span>
-            Ajouter client
-          </button>
-
-          <button 
-            className="action-btn"
-            onClick={() => navigate('/fournisseurs/nouveau')}
-          >
-            <span className="action-icon">🏭</span>
-            Ajouter minoterie
-          </button>
           
-          <button 
+         <button 
             className="action-btn"
-            onClick={() => navigate('/ristournes/nouvelle')}
+            onClick={() => navigate('/demandes-inscription')}
           >
-            <span className="action-icon">🎁</span>
-            Accorder ristourne
+            <span className="action-icon">📝</span>
+            Voir demandes d'inscription
           </button>
 
-          <button 
-            className="action-btn"
-            onClick={() => navigate('/statistiques')}
-          >
-            <span className="action-icon">📊</span>
-            Voir statistiques
-          </button>
         </div>
       </div>
     </div>

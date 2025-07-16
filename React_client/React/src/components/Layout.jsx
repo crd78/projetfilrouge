@@ -35,7 +35,7 @@ export default function Layout() {
     { label: "Mon espace client", path: "/dashboard/client", show: isLoggedIn && user?.role === 1 },
     // Dashboard commercial (rôle 2 uniquement)
     { label: "Dashboard commercial", path: "/dashboard/commercial", show: isLoggedIn && user?.role === 2 },
-    { label: "Demandes de devis", path: "/devis/demandes-devis", show: isLoggedIn && user?.role === 2 },
+   
     // Gestion stock (rôle 5 uniquement)
     { label: "Gestion stock", path: "/dashboard/stock", show: isLoggedIn && user?.role === 5 },
     // Entrepôts (rôle 2 ou 5)

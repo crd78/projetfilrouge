@@ -16,6 +16,7 @@ import DemandesDevis from "./pages/devis/demandes-devis";
 import ListeProduit from "./pages/produits/liste_produit";
 import NouveauDevis from "./pages/devis/nouveau-devis";
 import DashboardClient from "./pages/dashboard/dashboardClient";
+import DemandesInscription from "./pages/auth/demandes-inscription";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -40,6 +41,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             element={
               <ProtectedRoute requiredRole={2}>
                 <DemandesDevis />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/demandes-inscription" 
+            element={
+              <ProtectedRoute requiredRole={2}>
+                <DemandesInscription />
               </ProtectedRoute>
             } 
           />

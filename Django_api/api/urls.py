@@ -44,7 +44,8 @@ urlpatterns = [
     # Client routes
     path('client/inscription', client_inscription, name='client_inscription'),
     path('client/connexion', client_connexion, name='client_connexion'),  # Ajoutez cette ligne
-    path('Clients/<int:id>', client_detail, name='client_detail'),
+    path('clients/<int:id>/', client_detail, name='client_detail'),  
+    path('clients', client_list, name='client-list'),
     
     # Product routes
     path('produits', product_list, name='product_list'),
