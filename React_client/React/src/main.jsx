@@ -16,6 +16,7 @@ import DemandesDevis from "./pages/devis/demandes-devis";
 import ListeProduit from "./pages/produits/liste_produit";
 import NouveauDevis from "./pages/devis/nouveau-devis";
 import DashboardClient from "./pages/dashboard/dashboardClient";
+import DemandesInscription from "./pages/auth/demandes-inscription";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -40,6 +41,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             element={
               <ProtectedRoute requiredRole={2}>
                 <DemandesDevis />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/demandes-inscription" 
+            element={
+              <ProtectedRoute requiredRole={2}>
+                <DemandesInscription />
               </ProtectedRoute>
             } 
           />
@@ -79,15 +88,17 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="/contact" element={<Contact />} />
             <Route path="/historique" element={<Historique />} />
             <Route path="/profil" element={<Profil />} />
+            {/* PRODUITS accessible à tous */}
             <Route path="/produits" element={<ListeProduit />} />
+            {/* Dashboard client accessible UNIQUEMENT au rôle 1 */}
             <Route 
-            path="/dashboard/client" 
-            element={
-              <ProtectedRoute allowedRoles={[1,2]}>
-                <DashboardClient />
-              </ProtectedRoute>
-            } 
-          />
+              path="/dashboard/client" 
+              element={
+                <ProtectedRoute requiredRole={1}>
+                  <DashboardClient />
+                </ProtectedRoute>
+              } 
+            />
           </Route>
         </Routes>
       </BrowserRouter>
