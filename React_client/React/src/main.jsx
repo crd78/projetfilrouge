@@ -79,15 +79,17 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="/contact" element={<Contact />} />
             <Route path="/historique" element={<Historique />} />
             <Route path="/profil" element={<Profil />} />
+            {/* PRODUITS accessible à tous */}
             <Route path="/produits" element={<ListeProduit />} />
+            {/* Dashboard client accessible UNIQUEMENT au rôle 1 */}
             <Route 
-            path="/dashboard/client" 
-            element={
-              <ProtectedRoute allowedRoles={[1,2]}>
-                <DashboardClient />
-              </ProtectedRoute>
-            } 
-          />
+              path="/dashboard/client" 
+              element={
+                <ProtectedRoute requiredRole={1}>
+                  <DashboardClient />
+                </ProtectedRoute>
+              } 
+            />
           </Route>
         </Routes>
       </BrowserRouter>
