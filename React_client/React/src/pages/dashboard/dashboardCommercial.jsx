@@ -117,13 +117,30 @@ const Dashboard = () => {
         setRecentDevis([]);
       }
 
-      // ...clients et ristournes...
+  
+          try {
+            const ristournesResponse = await fetch(
+              `${API_CONFIG.BASE_URL}api/ristournes?limit=5`,
+              { headers: authHeaders }
+            );
+            if (ristournesResponse.ok) {
+              const ristournesData = await ristournesResponse.json();
+              setRistournes(ristournesData.results || ristournesData);
+            } else {
+              setRistournes([]);
+            }
+          } catch (error) {
+            console.warn('Erreur ristournes:', error);
+            setRistournes([]);
+          }
+    
     } catch (error) {
       console.error('Erreur lors du chargement des données commerciales:', error);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR', {
@@ -308,12 +325,7 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-
       
-
-        {/* Nouveaux clients */}
-      
-
         {/* Ristournes récentes */}
         <div className="dashboard-section">
           <div className="section-header">
@@ -322,7 +334,7 @@ const Dashboard = () => {
               className="view-all-btn"
               onClick={() => navigate('/ristournes')}
             >
-              Voir tout →
+          
             </button>
           </div>
           
@@ -331,15 +343,13 @@ const Dashboard = () => {
               ristournes.map((ristourne) => (
                 <div key={ristourne.id} className="contact-item">
                   <div className="contact-info">
-                    <h4 className="contact-name">
-                      Devis #{ristourne.devis?.IdDevis}
+                     <h4 className="contact-name">
+                      Devis #{ristourne.IdDevis_id || "-"}
                     </h4>
-                    <p className="contact-subject">{ristourne.devis?.client}</p>
+                    <p className="contact-subject">{ristourne.Commentaire || "-"}</p>
                     <p className="contact-date">{formatDate(ristourne.DateRistourne)}</p>
-                  </div>
-                  <div className="contact-status">
                     <span className="status-badge ristourne">
-                      {ristourne.Pourcentage}% - {formatPrice(ristourne.Montant)}
+                      {ristourne.MontantRistourne != null ? `${ristourne.MontantRistourne} €` : "-"}
                     </span>
                   </div>
                 </div>
@@ -355,14 +365,7 @@ const Dashboard = () => {
       <div className="quick-actions">
         <h2 className="section-title">Actions rapides</h2>
         <div className="actions-grid">
-          <button 
-            className="action-btn"
-            onClick={() => navigate('/devis/nouveau')}
-          >
-            <span className="action-icon">📋</span>
-            Nouveau devis
-          </button>
-          
+        
           <button 
             className="action-btn"
             onClick={() => navigate('/devis/demandes-devis')}
@@ -370,38 +373,15 @@ const Dashboard = () => {
             <span className="action-icon">🔔</span>
             Voir demandes ({stats.demandesEnAttente})
           </button>
-
-          <button 
-            className="action-btn"
-            onClick={() => navigate('/clients/nouveau')}
-          >
-            <span className="action-icon">👤</span>
-            Ajouter client
-          </button>
-
-          <button 
-            className="action-btn"
-            onClick={() => navigate('/fournisseurs/nouveau')}
-          >
-            <span className="action-icon">🏭</span>
-            Ajouter minoterie
-          </button>
           
-          <button 
+         <button 
             className="action-btn"
-            onClick={() => navigate('/ristournes/nouvelle')}
+            onClick={() => navigate('/demandes-inscription')}
           >
-            <span className="action-icon">🎁</span>
-            Accorder ristourne
+            <span className="action-icon">📝</span>
+            Voir demandes d'inscription
           </button>
 
-          <button 
-            className="action-btn"
-            onClick={() => navigate('/statistiques')}
-          >
-            <span className="action-icon">📊</span>
-            Voir statistiques
-          </button>
         </div>
       </div>
     </div>

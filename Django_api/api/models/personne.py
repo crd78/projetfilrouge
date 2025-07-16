@@ -38,6 +38,8 @@ class Personne(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(max_length=128, null=True, blank=True)
     adresse = models.TextField(blank=True, verbose_name="Adresse")
     role = models.IntegerField(choices=ROLE_CHOICES, verbose_name="Rôle")
+    valider = models.BooleanField(default=False, verbose_name="Inscription validée")
+
     
     # Champs spécifiques aux fournisseurs
     fonction = models.CharField(max_length=100, blank=True, verbose_name="Fonction")

@@ -21,37 +21,36 @@ def personne_list(request):
 @api_view(['GET'])
 def client_list(request):
     """
-    Liste tous les clients.
+    Liste tous les clients, possibilité de filtrer par validation.
     """
-    clients = Personne.objects.filter(role=1)  # Supposons que Role=1 pour les clients
+    valider = request.GET.get('valider')
+    clients = Personne.objects.filter(role=1)
+    if valider is not None:
+        clients = clients.filter(valider=bool(int(valider)))
     serializer = PersonneSerializer(clients, many=True)
     return Response(serializer.data)
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def client_detail(request, id):
     """
-    Récupère, met à jour ou supprime un client.
+    Récupère, met à jour ou supprime un client par ID.
     """
     try:
-        client = Personne.objects.get(pk=id, role=1)
+        client = Personne.objects.get(id=id, role=1)
     except Personne.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    
+        return Response({'error': 'Client non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+
     if request.method == 'GET':
         serializer = PersonneSerializer(client)
         return Response(serializer.data)
-    elif request.method == 'PUT':
-        # Envoie la tâche à Celery pour traitement asynchrone
-        task = update_client_task.delay(id, request.data)
-        
-        # Récupère les données actuelles pour la réponse
-        current_data = PersonneSerializer(client).data
-        
-        return Response({
-            "message": f"Mise à jour du client {id} en cours",
-            "task_id": task.id,
-            "current_data": current_data
-        })
+
+    elif request.method in ['PUT', 'PATCH']:
+        serializer = PersonneSerializer(client, data=request.data, partial=(request.method == 'PATCH'))
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     elif request.method == 'DELETE':
         client.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -88,6 +87,12 @@ def client_connexion(request):
         
         # Vérifier le mot de passe
         if check_password(password, personne.password):
+            # AJOUTE CE BLOC :
+            if personne.role == 1 and not getattr(personne, "valider", False):
+                return Response(
+                    {'error': "Votre inscription n'a pas encore été validée."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
             # Créer manuellement un token JWT
             refresh = RefreshToken()
             

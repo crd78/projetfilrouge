@@ -77,7 +77,7 @@ const Inscription = () => {
       });
 
       if (result.success) {
-        setMessage({ text: 'Inscription réussie! Redirection...', type: 'success' });
+        setMessage({ text: 'Demande d inscription réussie! Redirection...', type: 'success' });
         setFormData({
           prenom: '',
           nom: '',
