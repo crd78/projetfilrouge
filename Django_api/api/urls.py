@@ -53,7 +53,7 @@ urlpatterns = [
     
     # Devis routes
     path('devis', devis_list, name='devis_list'),
-    path('devis/<int:id>', devis_detail, name='devis_detail'),
+    path('devis/<int:id>/', devis_detail, name='devis_detail'),
     path('devis/<int:id>/accepter', devis_accepter, name='devis_accepter'),
     
     # Commandes routes

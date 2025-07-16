@@ -9,9 +9,6 @@ from ..tasks import update_devis_task, accepter_devis_task  # Ajoute cet import
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def devis_detail(request, id):
-    """
-    Récupère, met à jour ou supprime un devis
-    """
     try:
         devis = Devis.objects.get(pk=id)
     except Devis.DoesNotExist:
@@ -22,17 +19,11 @@ def devis_detail(request, id):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        # Envoie la tâche à Celery pour traitement asynchrone
-        task = update_devis_task.delay(id, request.data)
-        
-        # Récupère les données actuelles pour la réponse
-        current_data = DevisSerializer(devis).data
-        
-        return Response({
-            "message": f"Mise à jour du devis {id} en cours",
-            "task_id": task.id,
-            "current_data": current_data
-        })
+        serializer = DevisSerializer(devis, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()  # <-- Ceci mettra à jour DateMiseAJour
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
         devis.delete()

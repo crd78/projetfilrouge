@@ -39,71 +39,83 @@ const DemandesDevis = () => {
   }, [demandes, filters]);
 
   const fetchDemandes = async () => {
-    try {
-        setIsLoading(true);
-        setError(null);
+      try {
+          setIsLoading(true);
+          setError(null);
 
-        // Ajoute le filtre Approuver=0 à l'URL
-        const response = await fetch(`${API_CONFIG.BASE_URL}api/devis?Approuver=false`, {
-        headers: {
-            ...API_CONFIG.DEFAULT_HEADERS,
-            'Authorization': `Bearer ${getToken()}`
-        }
-        });
+          const response = await fetch(`${API_CONFIG.BASE_URL}api/devis?Approuver=false`, {
+              headers: {
+                  ...API_CONFIG.DEFAULT_HEADERS,
+                  'Authorization': `Bearer ${getToken()}`
+              }
+          });
 
-        if (response.ok) {
-        const result = await response.json();
-        console.log('Réponse API devis:', result); // <-- Ajoute ce log ici
-        setDemandes(result.results || result);
-        } else {
-        setDemandes([]);
-        }
-    } catch (error) {
-        console.error('Erreur lors du chargement des demandes:', error);
-        setError('Erreur lors du chargement des demandes');
-    } finally {
-        setIsLoading(false);
-    }
-    };
-
-  const applyFilters = () => {
-    let filtered = [...demandes];
-
-    // Filtre par statut
-    if (filters.statut !== 'tous') {
-      filtered = filtered.filter(d => d.statut === filters.statut);
-    }
-
-    // Filtre par priorité
-    if (filters.priorite !== 'tous') {
-      filtered = filtered.filter(d => d.priorite === filters.priorite);
-    }
-
-    // Filtre par recherche
-    if (filters.recherche) {
-      const search = filters.recherche.toLowerCase();
-      filtered = filtered.filter(d => 
-        d.client?.societe?.toLowerCase().includes(search) ||
-        d.client?.nom?.toLowerCase().includes(search) ||
-        d.sujet?.toLowerCase().includes(search) ||
-        d.description?.toLowerCase().includes(search)
-      );
-    }
-
-    // Filtre par date
-    if (filters.dateDebut) {
-      filtered = filtered.filter(d => 
-        new Date(d.date_demande) >= new Date(filters.dateDebut)
-      );
-    }
-    if (filters.dateFin) {
-      filtered = filtered.filter(d => 
-        new Date(d.date_demande) <= new Date(filters.dateFin)
-      );
-    }
-
-    setFilteredDemandes(filtered);
+          if (response.ok) {
+              const result = await response.json();
+              // Statut "traitee" si DateMiseAJour - 1min > DateCreation
+              const demandesCorrigees = (result.results || result).map(demande => {
+                  const dateCreation = new Date(demande.DateCreation);
+                  const dateMiseAJour = new Date(demande.DateMiseAJour);
+                  // Enlève 1 minute à DateMiseAJour
+                  const dateMiseAJourMoins1min = new Date(dateMiseAJour.getTime() - 60000);
+                  return {
+                      ...demande,
+                      statut:
+                          dateMiseAJourMoins1min > dateCreation
+                              ? 'traitee'
+                              : demande.statut
+                  };
+              });
+              setDemandes(demandesCorrigees);
+          } else {
+              setDemandes([]);
+          }
+      } catch (error) {
+          console.error('Erreur lors du chargement des demandes:', error);
+          setError('Erreur lors du chargement des demandes');
+      } finally {
+          setIsLoading(false);
+      }
   };
+
+    const applyFilters = () => {
+        let filtered = [...demandes];
+
+        // Filtre par statut
+        if (filters.statut !== 'tous') {
+            filtered = filtered.filter(d => d.statut === filters.statut);
+        }
+
+        // Filtre par priorité
+        if (filters.priorite !== 'tous') {
+            filtered = filtered.filter(d => d.priorite === filters.priorite);
+        }
+
+        // Filtre par recherche
+        if (filters.recherche) {
+            const search = filters.recherche.toLowerCase();
+            filtered = filtered.filter(d =>
+                d.client?.societe?.toLowerCase().includes(search) ||
+                d.client?.nom?.toLowerCase().includes(search) ||
+                d.sujet?.toLowerCase().includes(search) ||
+                d.description?.toLowerCase().includes(search)
+            );
+        }
+
+        // Filtre par date
+        if (filters.dateDebut) {
+            filtered = filtered.filter(d =>
+                new Date(d.date_demande) >= new Date(filters.dateDebut)
+            );
+        }
+        if (filters.dateFin) {
+            filtered = filtered.filter(d =>
+                new Date(d.date_demande) <= new Date(filters.dateFin)
+            );
+        }
+
+        setFilteredDemandes(filtered);
+    };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -156,16 +168,17 @@ const DemandesDevis = () => {
 
   const handleCreerDevis = (demande) => {
     navigate('/devis/nouveau', {
-        state: {
+      state: {
+        devisId: demande.IdDevis || demande.id, // <-- AJOUT ICI
         clientId: demande.client?.id,
         clientInfo: demande.client,
         demandeId: demande.id,
         sujet: demande.sujet,
         description: demande.description,
-        nomProduits: demande.nomProduits // <-- ajoute cette ligne !
-        }
+        nomProduits: demande.nomProduits
+      }
     });
-    };
+  };
 
   const handleVoirDetail = (demande) => {
     setSelectedDemande(demande);
@@ -173,16 +186,31 @@ const DemandesDevis = () => {
   };
 
   const handleMarquerTraitee = async (demandeId) => {
-    // Ici tu peux ajouter la logique API pour marquer comme traitée
-    setDemandes(prev => 
-      prev.map(d => 
-        d.id === demandeId 
-          ? { ...d, statut: 'traitee' }
-          : d
-      )
-    );
+    try {
+      const url = `${API_CONFIG.BASE_URL}api/devis/${demandeId}/`;
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          ...API_CONFIG.DEFAULT_HEADERS,
+          'Authorization': `Bearer ${getToken()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ statut: 'traitee' })
+      });
+      if (response.ok) {
+        const updatedDevis = await response.json();
+        setDemandes(prev =>
+          prev.map(d =>
+            String(d.IdDevis) === String(demandeId)
+              ? { ...d, statut: 'traitee', DateMiseAJour: updatedDevis.DateMiseAJour }
+              : d
+          )
+        );
+      }
+    } catch (err) {
+      alert('Erreur lors de la mise à jour du devis');
+    }
   };
-
   if (isLoading) {
     return (
       <div className="demandes-container">
@@ -355,14 +383,14 @@ const DemandesDevis = () => {
                   </button>
                 )}
 
-                {demande.statut !== 'traitee' && (
-                  <button 
-                    className="btn-action btn-traiter"
-                    onClick={() => handleMarquerTraitee(demande.id)}
-                  >
-                    ✅ Marquer traitée
-                  </button>
-                )}
+              {demande.statut !== 'traitee' && (
+                <button
+                  className="btn-action btn-traiter"
+                  onClick={() => handleMarquerTraitee(demande.IdDevis)}
+                >
+                  ✅ Marquer traitée
+                </button>
+              )}
               </div>
             </div>
           ))

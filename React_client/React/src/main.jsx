@@ -15,6 +15,7 @@ import ProtectedRoute from "./context/ProtectedRoute";
 import DemandesDevis from "./pages/devis/demandes-devis";
 import ListeProduit from "./pages/produits/liste_produit";
 import NouveauDevis from "./pages/devis/nouveau-devis";
+import DashboardClient from "./pages/dashboard/dashboardClient";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -79,6 +80,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="/historique" element={<Historique />} />
             <Route path="/profil" element={<Profil />} />
             <Route path="/produits" element={<ListeProduit />} />
+            <Route 
+            path="/dashboard/client" 
+            element={
+              <ProtectedRoute allowedRoles={[1,2]}>
+                <DashboardClient />
+              </ProtectedRoute>
+            } 
+          />
           </Route>
         </Routes>
       </BrowserRouter>

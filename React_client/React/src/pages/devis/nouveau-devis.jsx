@@ -1,20 +1,28 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './nouveau-devis.css';
+import API_CONFIG from '../../api.config.js';
+import { useAuth } from '../../context/AuthContext';
 
 const NouveauDevis = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const demande = location.state;
-
-  console.log("Données reçues dans NouveauDevis :", demande);
+  const { getToken } = useAuth();
+  const { user } = useAuth();
+  const devisId = demande?.devisId;
+  if (!devisId) {
+    alert("Erreur : aucun devisId fourni !");
+    return;
+  }
 
   // On récupère les produits de la demande
   const [produits, setProduits] = useState(
-    demande?.nomProduits?.map(nom => ({
-      nom,
-      prixHT: '', // à remplir par le commercial
-      remise: 0   // en %
+    demande?.nomProduits?.map(prod => ({
+      id: prod.id || '', // récupère l'id si dispo, sinon vide
+      nom: prod.nom || prod, // prod peut être un string ou un objet
+      prixHT: '',
+      remise: 0
     })) || []
   );
 
@@ -33,11 +41,73 @@ const NouveauDevis = () => {
     return (prixRemise * 1.2).toFixed(2); // TVA 20%
   };
 
-  // Soumission du devis
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Ici, tu envoies le devis à l'API
-    // ...
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // Calcule le montant de la ristourne
+  const montantRistourne = produits.reduce((acc, prod) => acc + ((parseFloat(prod.prixHT) || 0) * (parseFloat(prod.remise) || 0) / 100), 0);
+
+  // Prépare le payload du devis
+  const devisPayload = {
+  IdClient: demande.clientId,
+  idCommercial: user?.id, // <-- minuscule ici !
+    produits: produits
+      .map(prod => Number(prod.id))
+      .filter(id => !!id),
+    MontantTotalHT: produits.reduce((acc, prod) => acc + (parseFloat(prod.prixHT) || 0), 0),
+    MontantTotalTTC: produits.reduce((acc, prod) => acc + (prod.prixHT ? parseFloat(getPrixTTC(prod.prixHT, prod.remise)) : 0), 0)
+  };
+
+  // Ajoute ce log pour voir le payload envoyé
+  console.log('Payload envoyé pour update devis:', devisPayload);
+
+  const devisResponse = await fetch(`${API_CONFIG.BASE_URL}api/devis/${devisId}/`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${getToken()}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(devisPayload)
+  });
+
+
+    if (!devisResponse.ok) {
+      const errorText = await devisResponse.text();
+      console.error('Erreur création devis:', errorText);
+      alert('Erreur création devis: ' + errorText);
+      return;
+    }
+
+    const devisData = await devisResponse.json();
+
+    // Si une ristourne est présente, crée la ristourne
+    if (montantRistourne > 0) {
+      const ristournePayload = {
+        DateRistourne: new Date().toISOString().slice(0, 10),
+        IdDevis: devisId, // <-- correction ici
+        IdCommercial: demande.userId,
+        MontantRistourne: Number(montantRistourne.toFixed(2)), // <-- correction ici
+        Commentaire: "Ristourne appliquée"
+
+      };
+
+      const ristourneResponse = await fetch(`${API_CONFIG.BASE_URL}api/ristournes`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(ristournePayload)
+      });
+
+      if (!ristourneResponse.ok) {
+        const errorText = await ristourneResponse.text();
+        console.error('Erreur création ristourne:', errorText);
+        alert('Erreur création ristourne: ' + errorText);
+        return;
+      }
+    }
+
     alert('Devis créé !');
     navigate('/devis');
   };

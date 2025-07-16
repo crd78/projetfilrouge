@@ -96,7 +96,7 @@ class DevisSerializer(serializers.ModelSerializer):
         model = Devis
         fields = [
             'IdDevis', 'client', 'IdClient', 'idCommercial', 'MontantTotalHT', 'MontantTotalTTC',
-            'DateCreation', 'DateMiseAJour', 'produits', 'nomProduits'
+            'DateCreation', 'DateMiseAJour', 'produits', 'nomProduits', 'Approuver'  
         ]
         read_only_fields = ['DateCreation', 'DateMiseAJour']
 

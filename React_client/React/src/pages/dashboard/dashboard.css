@@ -322,7 +322,7 @@
   background: #c82333;
 }
 
-/* Responsive */
+/* Responsive pour dashboard principal */
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 1rem;
@@ -353,5 +353,228 @@
   
   .commande-details {
     align-items: flex-start;
+  }
+}
+
+/* === DASHBOARD CLIENT - VERSION DESKTOP === */
+.dashboard-client-bg {
+  min-height: 100vh;
+  background: #fafbfc;
+  padding: 2rem 1rem;
+}
+
+.dashboard-client-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.dashboard-client-header {
+  padding: 2rem 2rem 1rem 2rem;
+  background: linear-gradient(135deg, #b8860b 0%, #d4af37 100%);
+  color: white;
+  text-align: center;
+}
+
+.dashboard-client-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.dashboard-client-content {
+  padding: 2rem;
+}
+
+.dashboard-client-loader,
+.dashboard-client-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+}
+
+.dashboard-client-empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  opacity: 0.4;
+}
+
+.dashboard-client-table-wrapper {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.dashboard-client-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.dashboard-client-table th {
+  background: #f9fafb;
+  padding: 1rem 1.25rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-client-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.dashboard-client-table tr:last-child td {
+  border-bottom: none;
+}
+
+.dashboard-client-table tr:hover {
+  background: #f8fafc;
+}
+
+/* Badges de statut épurés */
+.statut {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statut.en_attente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statut.accepte {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statut.refuse {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.statut.brouillon {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Responsive pour client */
+@media (max-width: 768px) {
+  .dashboard-client-bg {
+    padding: 1rem 0.5rem;
+  }
+  
+  .dashboard-client-header {
+    padding: 1.5rem 1rem 1rem 1rem;
+  }
+  
+  .dashboard-client-title {
+    font-size: 1.5rem;
+  }
+  
+  .dashboard-client-content {
+    padding: 1rem;
+  }
+  
+  .dashboard-client-table th,
+  .dashboard-client-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  /* Styles pour les boutons d'action */
+  .devis-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-accepter, 
+  .btn-refuser {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-accepter {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+
+  .btn-accepter:hover {
+    background-color: #059669;
+    color: white;
+  }
+
+  .btn-refuser {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+
+  .btn-refuser:hover {
+    background-color: #dc2626;
+    color: white;
+  }
+
+  .btn-accepter:disabled,
+  .btn-refuser:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Notification styles */
+  .notification {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    animation: fadeInOut 3s forwards;
+  }
+
+  .notification.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid #059669;
+  }
+
+  .notification.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-left: 4px solid #dc2626;
+  }
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Responsive pour mobile */
+  @media (max-width: 768px) {
+    .devis-actions {
+      flex-direction: column;
+    }
+    
+    .dashboard-client-table td[data-label="Actions"] {
+      padding-top: 12px;
+    }
   }
 }

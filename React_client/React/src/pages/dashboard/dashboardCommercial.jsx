@@ -151,16 +151,18 @@ const Dashboard = () => {
     }
   };
 
-  // ✅ Fonction pour gérer l'ouverture d'une demande de devis
+ 
   const handleOuvrirDemande = (demande) => {
-    // Naviguer vers la page de création de devis avec les infos du client
+    console.log('demande envoyée à nouveau-devis:', demande);
     navigate(`/devis/nouveau`, {
       state: {
+        devisId: demande.IdDevis || demande.id, // Prend IdDevis si dispo, sinon id
         clientId: demande.client?.id,
         clientInfo: demande.client,
         demandeId: demande.id,
         sujet: demande.sujet,
-        description: demande.description
+        description: demande.description,
+        nomProduits: demande.nomProduits // si tu veux pré-remplir les produits
       }
     });
   };
@@ -298,26 +300,7 @@ const Dashboard = () => {
                       Montant HT : {demande.MontantTotalHT} € / Montant TTC : {demande.MontantTotalTTC} €
                     </p>
                   </div>
-                  <div className="commande-details">
-                    <button
-                      className="btn-creer-devis"
-                      style={{
-                        marginTop: '5px',
-                        padding: '5px 10px',
-                        background: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '0.8em'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOuvrirDemande(demande);
-                      }}
-                    >
-                      Créer devis
-                    </button>
-                  </div>
+                 
                 </div>
               ))
             ) : (
@@ -329,46 +312,7 @@ const Dashboard = () => {
       
 
         {/* Nouveaux clients */}
-        <div className="dashboard-section">
-          <div className="section-header">
-            <h2 className="section-title">📋 Tous les devis ({recentDevis.length})</h2>
-            <button 
-              className="view-all-btn"
-              onClick={() => navigate('/devis')}
-            >
-              Voir tout →
-            </button>
-          </div>
-          <div className="commandes-list">
-            {recentDevis.length > 0 ? (
-              recentDevis.map((devis) => (
-                <div 
-                  key={devis.IdDevis} 
-                  className="commande-item"
-                  onClick={() => handleOuvrirDevis(devis)}
-                  style={{ cursor: 'pointer', border: '2px solid #e9ecef' }}
-                >
-                  <div className="commande-info">
-                    <h4 className="commande-client">
-                      Devis #{devis.IdDevis} - Client {devis.IdClient}
-                    </h4>
-                    <p className="commande-date">
-                      {formatDate(devis.DateCreation)}
-                    </p>
-                    <p>
-                      Montant TTC : {formatPrice(devis.MontantTotalTTC)}
-                    </p>
-                    <p>
-                      Statut : <span style={{ color: getStatutColor(devis.StatutDevis) }}>{devis.StatutDevis || 'en_attente'}</span>
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="no-data">Aucun devis trouvé</p>
-            )}
-          </div>
-        </div>
+      
 
         {/* Ristournes récentes */}
         <div className="dashboard-section">
