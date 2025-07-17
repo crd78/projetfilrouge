@@ -1,10 +1,12 @@
 from django.db import models
+from .product import Product
+from .devis import Devis
 
 class DetailsCommande(models.Model):
-    """Modèle pour représenter les lignes de détail d'une commande"""
     id = models.AutoField(primary_key=True)
-    IdCommande = models.IntegerField(verbose_name="ID de la commande")
-    IdProduit = models.IntegerField(verbose_name="ID du produit")
+    IdCommande = models.IntegerField(verbose_name="ID de la commande", null=True, blank=True)
+    IdDevis = models.ForeignKey(Devis, on_delete=models.CASCADE, db_column="IdDevis", null=True, blank=True)
+    IdProduit = models.ForeignKey(Product, on_delete=models.CASCADE, db_column="IdProduit")
     Quantite = models.PositiveIntegerField(default=1, verbose_name="Quantité")
     
     def __str__(self):

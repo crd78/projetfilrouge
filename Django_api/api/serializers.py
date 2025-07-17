@@ -88,20 +88,33 @@ class UserSerializer(serializers.ModelSerializer):
     
 
 class DevisSerializer(serializers.ModelSerializer):
-    produits = serializers.PrimaryKeyRelatedField(many=True, queryset=Product.objects.all())
+    produits = serializers.SerializerMethodField()
     nomProduits = serializers.SerializerMethodField()
-    client = PersonneSerializer(source='IdClient', read_only=True)  # Ajout du lien client
+    client = PersonneSerializer(source='IdClient', read_only=True)
 
     class Meta:
         model = Devis
         fields = [
             'IdDevis', 'client', 'IdClient', 'idCommercial', 'MontantTotalHT', 'MontantTotalTTC',
-            'DateCreation', 'DateMiseAJour', 'produits', 'nomProduits', 'Approuver'  
+            'DateCreation', 'DateMiseAJour', 'produits', 'nomProduits', 'Approuver'
         ]
         read_only_fields = ['DateCreation', 'DateMiseAJour']
 
+    def get_produits(self, obj):
+        return [
+            {
+                "id": dc.IdProduit_id,
+                "nom": dc.IdProduit.NomProduit,
+                "quantite": dc.Quantite
+            }
+            for dc in DetailsCommande.objects.filter(IdDevis=obj)
+        ]
+
     def get_nomProduits(self, obj):
-        return [p.NomProduit for p in obj.produits.all()]
+        return [
+            dc.IdProduit.NomProduit
+            for dc in DetailsCommande.objects.filter(IdDevis=obj)
+        ]
 
 class RistourneSerializer(serializers.ModelSerializer):
     class Meta:

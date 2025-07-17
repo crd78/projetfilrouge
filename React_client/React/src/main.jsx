@@ -17,6 +17,8 @@ import ListeProduit from "./pages/produits/liste_produit";
 import NouveauDevis from "./pages/devis/nouveau-devis";
 import DashboardClient from "./pages/dashboard/dashboardClient";
 import DemandesInscription from "./pages/auth/demandes-inscription";
+import DashboardStock from "./pages/dashboard/dashboardStock";
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -62,13 +64,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           />
           
           {/* Route protégée pour la gestion des stocks - ROLE CHARGÉ STOCK (5) REQUIS */}
-          <Route 
-            path="/dashboard/stock" 
+          <Route
+            path="/dashboard/stock"
             element={
               <ProtectedRoute requiredRole={5}>
-                <div>Page de gestion des stocks (à créer)</div>
+                <DashboardStock />
               </ProtectedRoute>
-            } 
+            }
           />
           
           {/* Route accessible aux commerciaux ET chargés de stock */}

@@ -1,6 +1,6 @@
 from .product import Product
 from .user import UserProfile
-from .devis import Devis
+from .devis import Devis 
 from .commande import Commande
 from .stock import StockMouvement
 from .ristourne import Ristourne

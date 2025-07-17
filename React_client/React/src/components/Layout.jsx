@@ -26,10 +26,7 @@ export default function Layout() {
         { label: "Test 2", path: "#" }
       ], show: true
     },
-    { label: "Nos Produits", dropdown: [
-        { label: "Voir les produits", path: "/produits" }
-      ], show: true
-    },
+    { label: "Nos Produits", path: "/produits", show: true },
     { label: "Contact", path: "/contact", show: true },
     // Dashboard client (rôle 1 uniquement)
     { label: "Mon espace client", path: "/dashboard/client", show: isLoggedIn && user?.role === 1 },

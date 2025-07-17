@@ -235,57 +235,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Cartes de statistiques commerciales */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">📋</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{stats.totalDevis}</h3>
-            <p className="stat-label">Total devis</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">⏳</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{stats.devisEnAttente}</h3>
-            <p className="stat-label">Devis en attente</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">🔔</div>
-          <div className="stat-content">
-            <h3 className="stat-number" style={{ color: '#dc3545' }}>{stats.demandesEnAttente}</h3>
-            <p className="stat-label">Nouvelles demandes</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">✅</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{stats.devisAcceptes}</h3>
-            <p className="stat-label">Acceptés</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">👥</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{stats.nouveauxClients}</h3>
-            <p className="stat-label">Nouveaux clients</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">🎁</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{stats.ristournesAccordees}</h3>
-            <p className="stat-label">Ristournes</p>
-          </div>
-        </div>
-      </div>
-
+      
       {/* Contenu principal */}
       <div className="dashboard-content">
         {/* ✅ Nouvelles demandes de devis */}

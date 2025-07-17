@@ -175,7 +175,7 @@ const DemandesDevis = () => {
         demandeId: demande.id,
         sujet: demande.sujet,
         description: demande.description,
-        nomProduits: demande.nomProduits
+        produits: demande.produits  
       }
     });
   };

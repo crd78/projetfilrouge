@@ -18,7 +18,7 @@ class Devis(models.Model):
         related_name='devis_crees',
         verbose_name="Commercial"
     )
-    produits = models.ManyToManyField(Product, related_name='devis', verbose_name="Produits du devis")
+
     MontantTotalHT = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Montant total HT")
     MontantTotalTTC = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Montant total TTC")
     DateCreation = models.DateTimeField(auto_now_add=True)

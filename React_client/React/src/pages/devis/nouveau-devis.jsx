@@ -18,9 +18,9 @@ const NouveauDevis = () => {
 
   // On récupère les produits de la demande
   const [produits, setProduits] = useState(
-    demande?.nomProduits?.map(prod => ({
-      id: prod.id || '', // récupère l'id si dispo, sinon vide
-      nom: prod.nom || prod, // prod peut être un string ou un objet
+    demande?.produits?.map(prod => ({
+      id: prod.id,
+      nom: prod.nom,
       prixHT: '',
       remise: 0
     })) || []
@@ -49,15 +49,17 @@ const NouveauDevis = () => {
 
   // Prépare le payload du devis
   const devisPayload = {
-  IdClient: demande.clientId,
-  idCommercial: user?.id, // <-- minuscule ici !
+    IdClient: demande.clientId,
+    idCommercial: user?.id,
     produits: produits
-      .map(prod => Number(prod.id))
-      .filter(id => !!id),
+      .filter(prod => !!prod.id)
+      .map(prod => ({
+        id: Number(prod.id),
+        quantite: 1 // ou la vraie quantité si tu la gères dans le formulaire
+      })),
     MontantTotalHT: produits.reduce((acc, prod) => acc + (parseFloat(prod.prixHT) || 0), 0),
     MontantTotalTTC: produits.reduce((acc, prod) => acc + (prod.prixHT ? parseFloat(getPrixTTC(prod.prixHT, prod.remise)) : 0), 0)
   };
-
   // Ajoute ce log pour voir le payload envoyé
   console.log('Payload envoyé pour update devis:', devisPayload);
 

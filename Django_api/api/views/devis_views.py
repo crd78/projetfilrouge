@@ -1,7 +1,8 @@
+from ..models import DetailsCommande
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from ..models import Devis, Commande 
+from ..models import Devis, Product
 from ..serializers import DevisSerializer
 from ..tasks import update_devis_task, accepter_devis_task  # Ajoute cet import
 
@@ -21,7 +22,7 @@ def devis_detail(request, id):
     elif request.method == 'PUT':
         serializer = DevisSerializer(devis, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()  # <-- Ceci mettra à jour DateMiseAJour
+            serializer.save() 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -41,10 +42,18 @@ def devis_list(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
+        produits = request.data.pop('produits', [])
+        # produits doit être une liste d'objets {id, quantite}
         serializer = DevisSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            devis = serializer.save()
+            for prod in produits:
+                DetailsCommande.objects.create(
+                    IdDevis=devis,
+                    IdProduit_id=prod['id'],
+                    Quantite=prod.get('quantite', 1)
+                )
+            return Response(DevisSerializer(devis).data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

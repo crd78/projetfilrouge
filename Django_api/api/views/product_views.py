@@ -4,6 +4,8 @@ from rest_framework import status
 from ..models import Product
 from ..serializers import ProductSerializer
 from ..tasks import update_product_task
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import permission_classes
 
 @api_view(['GET'])
 def hello_world(request):
@@ -20,6 +22,7 @@ def item_list(request):
     return Response({"message": "La fonctionnalité d'items sera implémentée prochainement"})
 
 @api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
 def product_list(request):
     if request.method == 'GET':
         products = Product.objects.all()

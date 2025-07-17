@@ -10,6 +10,7 @@ const ListeProduit = () => {
   const [panier, setPanier] = useState([]);
   const [showPanier, setShowPanier] = useState(false);
   const { user, getToken } = useAuth();
+  const [quantites, setQuantites] = useState({});
 
   // Charger le panier depuis le localStorage au démarrage
   useEffect(() => {
@@ -69,62 +70,71 @@ const ListeProduit = () => {
     ]);
   }, []);
 
-  const ajouterAuPanier = (produit) => {
+  const ajouterAuPanier = (produit, quantite) => {
     setPanier(prev => {
       const exist = prev.find(item => item.id === produit.id);
       if (exist) {
         return prev.map(item =>
           item.id === produit.id
-            ? { ...item, quantite: item.quantite + 1 }
+            ? { ...item, quantite: item.quantite + quantite }
             : item
         );
       }
-      return [...prev, { ...produit, quantite: 1 }];
+      return [...prev, { ...produit, quantite }];
     });
   };
 
   const envoyerDemandeDevis = async () => {
     try {
-        const produitsIds = panier.map(item => item.id);
-        const body = {
-        IdClient: user?.id,
-        MontantTotalHT: totalPanier,
-        MontantTotalTTC: totalPanier * 1.2,
-        produits: produitsIds
-        };
-        console.log("Payload envoyé à l'API :", body);
-        // Correction de l'URL : pas de double slash, pas de slash final
-        const url = `${API_CONFIG.BASE_URL}api/devis`;
+      // On envoie un tableau d'objets {id, quantite}
+      const produitsPayload = panier.map(item => ({
+        id: item.id,
+        quantite: item.quantite
+      }));
 
-        const response = await fetch(url, {
+      const body = {
+        IdClient: user?.id,
+        idCommercial: null,
+        MontantTotalHT: Number(totalPanier.toFixed(2)),      // <-- arrondi à 2 décimales
+        MontantTotalTTC: Number((totalPanier * 1.2).toFixed(2)), // <-- arrondi à 2 décimales
+        produits: produitsPayload
+      };
+      console.log("Payload envoyé à l'API :", body);
+
+      const url = `${API_CONFIG.BASE_URL}api/devis`;
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
-            ...API_CONFIG.DEFAULT_HEADERS,
-            'Authorization': `Bearer ${getToken()}`,
-            'Content-Type': 'application/json'
+          ...API_CONFIG.DEFAULT_HEADERS,
+          'Authorization': `Bearer ${getToken()}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(body)
-        });
-        const data = await response.json();
-        console.log('Réponse API:', data);
-        if (response.ok) {
+      });
+      const data = await response.json();
+      console.log('Réponse API:', data);
+      if (response.ok) {
         alert('Votre demande de devis a été envoyée !');
         setShowPanier(false);
         setPanier([]);
         localStorage.removeItem(PANIER_KEY);
-        } else {
+      } else {
         alert('Erreur lors de l\'envoi du devis');
-        }
+      }
     } catch (err) {
-        alert('Erreur réseau');
+      alert('Erreur réseau');
     }
-    };
+  };
 
   const retirerDuPanier = (id) => {
     setPanier(prev => prev.filter(item => item.id !== id));
   };
 
-  const totalPanier = panier.reduce((acc, item) => acc + item.prix * item.quantite, 0);
+  const totalPanier = panier.reduce(
+    (acc, item) => acc + (Number(item.prix) || 0) * (Number(item.quantite) || 0),
+    0
+  );
 
   return (
     <div className="ecommerce-container">
@@ -147,10 +157,24 @@ const ListeProduit = () => {
                 </span>
               </div>
               <div className="produit-fournisseur">Fournisseur : {produit.fournisseur}</div>
+
+              <input
+                type="number"
+                min="1"
+                value={quantites[produit.id] || 1}
+                onChange={e =>
+                  setQuantites(q => ({ ...q, [produit.id]: parseInt(e.target.value) || 1 }))
+                }
+                style={{ width: 60, marginRight: 8 }}
+              />
               <button
                 className="btn-panier"
                 disabled={produit.stock === 0}
-                onClick={() => ajouterAuPanier(produit)}
+                onClick={() => {
+                  if (produit.stock > 0) {
+                    ajouterAuPanier(produit, quantites[produit.id] || 1);
+                  }
+                }}
               >
                 Ajouter au panier
               </button>
@@ -182,16 +206,20 @@ const ListeProduit = () => {
                     </thead>
                     <tbody>
                     {panier.map(item => (
-                        <tr key={item.id}>
+                      <tr key={item.id}>
                         <td>{item.nom}</td>
-                        <td>{item.quantite}</td>
-                        <td>{(item.prix * item.quantite).toFixed(2)} €</td>
+                        <td>{item.quantite ?? 1}</td>
                         <td>
-                            <button className="btn-retirer" onClick={() => retirerDuPanier(item.id)}>
-                            Retirer
-                            </button>
+                          {item.prix && item.quantite
+                            ? (Number(item.prix) * Number(item.quantite)).toFixed(2) + " €"
+                            : "0.00 €"}
                         </td>
-                        </tr>
+                        <td>
+                          <button className="btn-retirer" onClick={() => retirerDuPanier(item.id)}>
+                            Retirer
+                          </button>
+                        </td>
+                      </tr>
                     ))}
                     </tbody>
                 </table>
