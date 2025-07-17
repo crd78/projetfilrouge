@@ -24,8 +24,7 @@ class Personne(AbstractBaseUser, PermissionsMixin):
         (1, 'Client'),
         (2, 'Commercial'),
         (3, 'Collaborateur'),
-        (4, 'Fournisseur'),
-        (5, 'ChargéStock'),  
+        (4, 'ChargéStock'),  
     ]
     
     
