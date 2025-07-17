@@ -94,3 +94,52 @@ html, body {
   display: block;
   border-radius: 120px;
 }
+@media (max-width: 900px) {
+  .header {
+    width: 95%;
+    padding: 1.5rem 1rem 1rem 1rem;
+  }
+  .header h1 {
+    font-size: 3rem;
+  }
+  .accueil-image {
+    max-height: 320px;
+    border-radius: 60px;
+  }
+}
+
+/* Responsive : Mobile */
+@media (max-width: 600px) {
+  .accueil-container {
+    padding: 0;
+    height: auto;
+    min-height: 100vh;
+  }
+  .header {
+    width: 100%;
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+    align-items: flex-start;
+  }
+  .header h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  .header-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    align-items: stretch;
+  }
+  .btn-discover,
+  .btn-contact {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.75rem 0.5rem;
+  }
+  .accueil-image {
+    width: 100%;
+    max-height: 180px;
+    border-radius: 30px;
+    margin: 10px auto 1rem auto;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import "./Layout.css";
@@ -9,7 +9,7 @@ export default function Layout() {
   const { isLoggedIn, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [menuOpen, setMenuOpen] = useState(false);
   // Pour surligner la page active
   const isActive = (path) => {
     if (path === "/accueil" && (location.pathname === "/" || location.pathname === "/accueil")) return true;
@@ -41,6 +41,11 @@ export default function Layout() {
     { label: "Profil", path: "/profil", show: isLoggedIn }
   ];
 
+  const handleNavClick = (path) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
+
   return (
     <>
       <nav
@@ -59,13 +64,19 @@ export default function Layout() {
           alignItems: "center",
         }}
       >
-        <div className="logo" onClick={() => navigate("/accueil")}>MinoTor</div>
-        <ul className="nav-links">
+        <div className="logo" onClick={() => handleNavClick("/accueil")}>MinoTor</div>
+        {/* Burger icon */}
+        <div className="burger" onClick={() => setMenuOpen((open) => !open)}>
+          <span />
+          <span />
+          <span />
+        </div>
+        <ul className={`nav-links${menuOpen ? " open" : ""}`}>
           {navLinks.map((link, idx) =>
             link.show && !link.dropdown ? (
               <li
                 key={link.label}
-                onClick={() => navigate(link.path)}
+                onClick={() => handleNavClick(link.path)}
                 className={isActive(link.path) ? "active" : ""}
                 style={{ cursor: "pointer" }}
               >
@@ -78,7 +89,7 @@ export default function Layout() {
                   {link.dropdown.map((item) => (
                     <li
                       key={item.label}
-                      onClick={() => item.path !== "#" && navigate(item.path)}
+                      onClick={() => item.path !== "#" && handleNavClick(item.path)}
                       style={{ cursor: item.path !== "#" ? "pointer" : "default" }}
                     >
                       {item.label}
@@ -95,7 +106,7 @@ export default function Layout() {
               <button className="icon-button" style={{ marginRight: "1rem" }}>
                 <FontAwesomeIcon icon={faBell} />
               </button>
-              <div className="user-info-navbar" onClick={() => navigate("/profil")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.7rem" }}>
+              <div className="user-info-navbar" onClick={() => handleNavClick("/profil")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.7rem" }}>
                 <img
                   src={user.avatar}
                   alt="avatar"
@@ -114,16 +125,16 @@ export default function Layout() {
             </div>
           ) : (
             <>
-              <button onClick={() => navigate("/connexion")} className="btn-link">Se Connecter</button>
-              <button onClick={() => navigate("/inscription")} className="btn-inscription">S'inscrire</button>
+              <button onClick={() => handleNavClick("/connexion")} className="btn-link">Se Connecter</button>
+              <button onClick={() => handleNavClick("/inscription")} className="btn-inscription">S'inscrire</button>
             </>
           )}
         </div>
       </nav>
 
-        <main style={{ marginTop: "70px", padding: "1rem 2.5rem" }}>
-              <Outlet />
-            </main>
-          </>
-        );
-      }
+      <main style={{ marginTop: "70px", padding: "1rem 2.5rem" }}>
+        <Outlet />
+      </main>
+    </>
+  );
+}
