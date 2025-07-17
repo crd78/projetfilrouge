@@ -59,26 +59,26 @@ class StockMouvement(models.Model):
         return f"{self.DateMouvement.strftime('%Y-%m-%d')} - {mouvement_type}{self.Quantite} {self.IdProduit.NomProduit} ({entrepot.Localisation})"
     
     def save(self, *args, **kwargs):
-        # Mise à jour de la quantité en stock du produit lors d'un mouvement
+        is_new = self._state.adding  # True si c'est une création
         produit = self.IdProduit
-        
-        # Ajout ou soustraction selon le type de mouvement
-        if self.TypeMouvement in ['ENTREE', 'RETOUR']:
-            produit.QuantiteStock += self.Quantite
-        elif self.TypeMouvement in ['SORTIE']:
-            produit.QuantiteStock -= self.Quantite
-        elif self.TypeMouvement == 'AJUSTEMENT':
-            # Pour un ajustement, on ne fait rien ici car c'est une modification directe
-            pass
-        elif self.TypeMouvement == 'INVENTAIRE':
-            # Pour un inventaire, on remplace directement la quantité
-            produit.QuantiteStock = self.Quantite
-        
-        produit.save()
-        # Mise à jour de l'IdMouvement dans le produit
-        produit.IdMouvement = self.IdMouvement
-        produit.save(update_fields=['IdMouvement'])
-        
+
+        # SUPPRIMER TOUT CE BLOC :
+        # if is_new:
+        #     if self.TypeMouvement in ['ENTREE', 'RETOUR']:
+        #         produit.QuantiteStock += self.Quantite
+        #     elif self.TypeMouvement == 'SORTIE':
+        #         produit.QuantiteStock -= self.Quantite
+        #     elif self.TypeMouvement == 'INVENTAIRE':
+        #         produit.QuantiteStock = self.Quantite
+        #     produit.save(update_fields=['QuantiteStock'])
+
+        super().save(*args, **kwargs)
+
+        # Mise à jour de l'IdMouvement dans le produit (optionnel)
+        if is_new:
+            produit.IdMouvement = self.IdMouvement
+            produit.save(update_fields=['IdMouvement'])
+
         super().save(*args, **kwargs)
     
     class Meta:

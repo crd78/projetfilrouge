@@ -5,7 +5,7 @@ from .models import (
     Product, UserProfile, Devis, 
     Commande, Ristourne, Entrepot, StockMouvement,
     Vehicule, Transport, Livraison,
-    DetailsCommande, Maintenance, Personne,Livreur  # Client a été fusionné dans Personne
+    DetailsCommande, Maintenance, Personne,Livreur,StockMouvement  # Client a été fusionné dans Personne
 )
 from .models import Contact
 
@@ -44,8 +44,10 @@ class LivreurSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['IdProduit', 'NomProduit', 'TypeProduit', 'PrixHT', 'PrixTTC', 
-                 'QuantiteStock', 'IdMouvement', 'DateCreation', 'DateMiseAJour']
+        fields = [
+            'IdProduit', 'NomProduit', 'TypeProduit', 'PrixHT', 'PrixTTC',
+            'IdMouvement', 'DateCreation', 'DateMiseAJour'
+        ]  # <-- SUPPRIME 'QuantiteStock'
         read_only_fields = ['DateCreation', 'DateMiseAJour']
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -179,3 +181,8 @@ class ContactSerializer(serializers.ModelSerializer):
         model = Contact
         fields = '__all__'
         read_only_fields = ('date_creation',)
+    
+class StockMouvementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StockMouvement
+        fields = '__all__'

@@ -2,10 +2,9 @@ from ..models import DetailsCommande
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from ..models import Devis, Product
+from ..models import Devis, Product,StockMouvement, Entrepot
 from ..serializers import DevisSerializer
 from ..tasks import update_devis_task, accepter_devis_task  # Ajoute cet import
-
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -20,15 +19,35 @@ def devis_detail(request, id):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
+        approuver = request.data.get('Approuver', False)
+        if approuver and not devis.Approuver:
+            details = DetailsCommande.objects.filter(IdDevis=devis)
+            for detail in details:
+                produit = detail.IdProduit
+                quantite = detail.Quantite
+                if produit.QuantiteStock >= quantite:
+                    entrepot = Entrepot.objects.filter(IdProduit=produit).first()
+                    if not entrepot:
+                        return Response({"error": f"Aucun entrepôt trouvé pour {produit.NomProduit}"}, status=400)
+                    # C'est ici qu'il faut créer le mouvement de stock :
+                    StockMouvement.objects.create(
+                        IdProduit=produit,
+                        IdEntrepot=entrepot,
+                        Quantite=quantite,
+                        TypeMouvement='SORTIE'
+                    )
+                else:
+                    return Response(
+                        {"error": f"Stock insuffisant pour {produit.NomProduit}"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            devis.Approuver = True
+            devis.save()
         serializer = DevisSerializer(devis, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save() 
+            serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    elif request.method == 'DELETE':
-        devis.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 def devis_list(request):

@@ -11,15 +11,19 @@ const ListeProduit = () => {
   const [showPanier, setShowPanier] = useState(false);
   const { user, getToken } = useAuth();
   const [quantites, setQuantites] = useState({});
+  const [mouvements, setMouvements] = useState([]);
 
   // Charger le panier depuis le localStorage au démarrage
   useEffect(() => {
-    const panierLocal = localStorage.getItem(PANIER_KEY);
-    if (panierLocal) {
-      setPanier(JSON.parse(panierLocal));
-    }
-  }, []);
-
+    fetch(`${API_CONFIG.BASE_URL}api/stockmouvements`, {
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(setMouvements);
+  }, [getToken]);
   // Sauvegarder le panier à chaque modification
   useEffect(() => {
     localStorage.setItem(PANIER_KEY, JSON.stringify(panier));
@@ -83,6 +87,17 @@ const ListeProduit = () => {
       return [...prev, { ...produit, quantite }];
     });
   };
+
+  const getStockProduit = (produitId) => {
+  return mouvements
+    .filter(m => m.IdProduit === produitId)
+    .reduce((total, m) => {
+      if (["ENTREE", "RETOUR"].includes(m.TypeMouvement)) return total + m.Quantite;
+      if (["SORTIE"].includes(m.TypeMouvement)) return total - m.Quantite;
+      if (["INVENTAIRE"].includes(m.TypeMouvement)) return m.Quantite;
+      return total;
+    }, 0);
+};
 
   const envoyerDemandeDevis = async () => {
     try {
@@ -152,8 +167,8 @@ const ListeProduit = () => {
               <div className="produit-prix">{produit.prix.toFixed(2)} € / {produit.unite}</div>
               <div className="produit-stock">
                 <span>Stock : </span>
-                <span className={produit.stock > 0 ? "stock-ok" : "stock-ko"}>
-                  {produit.stock > 0 ? `${produit.stock} ${produit.unite}` : "Rupture"}
+                <span className={getStockProduit(produit.id) > 0 ? "stock-ok" : "stock-ko"}>
+                  {getStockProduit(produit.id) > 0 ? `${getStockProduit(produit.id)} ${produit.unite}` : "Rupture"}
                 </span>
               </div>
               <div className="produit-fournisseur">Fournisseur : {produit.fournisseur}</div>

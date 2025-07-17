@@ -26,7 +26,7 @@ class Product(models.Model):
         decimal_places=2,
         verbose_name="Prix TTC"
     )
-    QuantiteStock = models.PositiveIntegerField(default=0, verbose_name="Quantité en stock")
+   
     IdMouvement = models.PositiveIntegerField(blank=True, null=True, verbose_name="ID de mouvement")
     DateCreation = models.DateTimeField(auto_now_add=True)
     DateMiseAJour = models.DateTimeField(auto_now=True)

@@ -1,5 +1,7 @@
 from django.urls import path
 
+from .views.stockmouvement_view import stockmouvement_list
+
 # Import des vues nécessaires
 from .views.product_views import product_list, product_detail
 from .views.devis_views import devis_list, devis_detail, devis_accepter
@@ -32,7 +34,6 @@ from .views.livraison_views import (
 )
 from .views.health_views import health_check, simple_test,test_celery
 from .views.contact_views import contact_list, contact_detail, contact_marquer_traite
-
 
 
 urlpatterns = [
@@ -118,6 +119,7 @@ urlpatterns = [
     path('contacts/', contact_list, name='contact_list'),
     path('contacts/<int:pk>/', contact_detail, name='contact_detail'),
     path('contacts/<int:pk>/traite/', contact_marquer_traite, name='contact_marquer_traite'),
+    path('stockmouvements', stockmouvement_list, name='stockmouvement_list'),
     
 
     # Statistiques desktop

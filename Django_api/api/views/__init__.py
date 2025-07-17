@@ -40,3 +40,4 @@ from .maintenance_views import (
 )
 
 from .contact_views import contact_list, contact_detail, contact_marquer_traite
+from .stockmouvement_view import stockmouvement_list
