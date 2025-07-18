@@ -36,6 +36,11 @@ class Vehicule(models.Model):
         blank=True,
         verbose_name="Dernière maintenance"
     )
+    LastDateMaintenance = models.DateField(
+        verbose_name="Date de dernière maintenance",
+        null=True,
+        blank=True
+    )
     Immatriculation = models.CharField(max_length=20, verbose_name="Immatriculation", blank=True)
     DateCreation = models.DateTimeField(auto_now_add=True)
     DateMiseAJour = models.DateTimeField(auto_now=True)

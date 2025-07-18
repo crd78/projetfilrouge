@@ -78,9 +78,10 @@ class Maintenance(models.Model):
         if self.StatutMaintenance == 'TERMINEE' and self.DateFinMaintenance:
             vehicule = self.IdVehicule
             vehicule.LastDateMaintenance = self.DateFinMaintenance.date()
-            vehicule.save(update_fields=['LastDateMaintenance'])
+            vehicule.save(update_fields=['LastDateMaintenance'])  # <-- Corrige ici
             if vehicule.Statut == 'EN_MAINTENANCE':
                 vehicule.Statut = 'DISPONIBLE'
+                vehicule.save(update_fields=['Statut'])  # <-- Ajoute cette ligne
         super().save(*args, **kwargs)
     
     class Meta:

@@ -19,7 +19,8 @@ from .views.personne_views import (
 # Import des vues de maintenance
 from .views.maintenance_views import (
     maintenance_list, maintenance_detail, vehicule_maintenances,
-    collaborateur_maintenances, update_maintenance_status, maintenances_by_status
+    collaborateur_maintenances, update_maintenance_status, maintenances_by_status,
+    creer_maintenance  # <-- Assure-toi que c'est là
 )
 # Import des vues de ristourne
 from .views.ristourne_views import (
@@ -88,12 +89,14 @@ urlpatterns = [
 
     
     # Maintenance routes
-    path('maintenances', maintenance_list, name='maintenance_list'),
-    path('maintenances/<int:pk>', maintenance_detail, name='maintenance_detail'),
-    path('vehicules/<int:vehicule_id>/maintenances', vehicule_maintenances, name='vehicule_maintenances'),
-    path('collaborateurs/<int:collaborateur_id>/maintenances', collaborateur_maintenances, name='collaborateur_maintenances'),
-    path('maintenances/<int:pk>/status/<str:statut>', update_maintenance_status, name='update_maintenance_status'),
-    path('maintenances/status/<str:statut>', maintenances_by_status, name='maintenances_by_status'),
+    path('maintenances/creer/', creer_maintenance, name='creer_maintenance'),
+    path('vehicules/', vehicule_list, name='vehicule_list'),
+    path('maintenances/', maintenance_list, name='maintenance_list'),
+    path('maintenances/<int:pk>/', maintenance_detail, name='maintenance_detail'),
+    path('maintenances/<int:pk>/status/<str:statut>/', update_maintenance_status, name='update_maintenance_status'),  # <-- Ajoute cette ligne
+    path('vehicules/<int:vehicule_id>/maintenances/', vehicule_maintenances, name='vehicule_maintenances'),
+    path('collaborateurs/<int:collaborateur_id>/maintenances/', collaborateur_maintenances, name='collaborateur_maintenances'),
+    path('maintenances/status/<str:statut>/', maintenances_by_status, name='maintenances_by_status'),
     
     # Ristourne routes
     path('ristournes', ristourne_list, name='ristourne_list'),

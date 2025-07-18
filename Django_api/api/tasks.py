@@ -409,33 +409,34 @@ def update_maintenance_status_task(maintenance_id, statut):
 
 
 @shared_task
-def update_livreur_task(livreur_id, data):
+def update_maintenance_status_task(maintenance_id, statut):
     """
-    Tâche Celery pour mettre à jour un livreur de manière asynchrone
+    Tâche Celery pour mettre à jour le statut d'une maintenance de manière asynchrone
     """
-    from .models import Livreur
-    from .serializers import LivreurSerializer
-    
+    from .models import Maintenance
+    from .serializers import MaintenanceSerializer
+    from datetime import datetime
+
     try:
-        livreur = Livreur.objects.get(pk=livreur_id)
-        serializer = LivreurSerializer(livreur, data=data)
+        maintenance = Maintenance.objects.get(pk=maintenance_id)
+        maintenance.StatutMaintenance = statut.upper()
         
-        if serializer.is_valid():
-            serializer.save()
-            return {
-                "success": True,
-                "message": f"Livreur {livreur_id} mis à jour avec succès",
-                "data": serializer.data
-            }
-        else:
-            return {
-                "success": False,
-                "errors": serializer.errors
-            }
-    except Livreur.DoesNotExist:
+        # Si la maintenance est terminée, mettre à jour la date de fin
+        if statut.upper() == 'TERMINEE' and not maintenance.DateFinMaintenance:
+            maintenance.DateFinMaintenance = datetime.now()
+            
+        maintenance.save()
+        serializer = MaintenanceSerializer(maintenance)
+        
+        return {
+            "success": True,
+            "message": f"Statut de la maintenance {maintenance_id} mis à jour avec succès",
+            "data": serializer.data
+        }
+    except Maintenance.DoesNotExist:
         return {
             "success": False,
-            "error": f"Livreur {livreur_id} non trouvé"
+            "error": f"Maintenance {maintenance_id} non trouvée"
         }
     except Exception as e:
         return {

@@ -16,7 +16,7 @@ class PersonneSerializer(serializers.ModelSerializer):
             'id', 'nom', 'prenom', 'telephone', 'email', 'password', 
             'adresse', 'role', 'fonction', 'code_postal', 'ville',
             'raison_sociale', 'siret', 'date_creation', 'date_miseajour',
-            'valider', 'statut', 'id_vehicule'  
+            'valider', 'statut'  # Retire 'id_vehicule'
         ]
 
     def create(self, validated_data):
@@ -132,8 +132,14 @@ class EntrepotSerializer(serializers.ModelSerializer):
 class VehiculeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicule
-        fields = ['IdVehicule', 'TypeVehicule', 'Statut', 'LastDateMaintenance', 
-                 'Immatriculation', 'DateCreation', 'DateMiseAJour']
+        fields = [
+            'IdVehicule',
+            'TypeVehicule',
+            'Statut',
+            'Immatriculation',
+            'DateCreation',
+            'DateMiseAJour'
+        ]
         read_only_fields = ['DateCreation', 'DateMiseAJour']
 
 class TransportSerializer(serializers.ModelSerializer):
@@ -160,6 +166,10 @@ class LivraisonSerializer(serializers.ModelSerializer):
 
 
 class MaintenanceSerializer(serializers.ModelSerializer):
+    # Pour la lecture (GET), on inclut les objets complets
+    IdVehicule = VehiculeSerializer(read_only=True)
+    IdCollaborateur = PersonneSerializer(read_only=True)
+    
     class Meta:
         model = Maintenance
         fields = ['IdMaintenance', 'IdCollaborateur', 'DateMaintenance', 'IdVehicule',
