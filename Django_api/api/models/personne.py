@@ -39,6 +39,10 @@ class Personne(AbstractBaseUser, PermissionsMixin):
     adresse = models.TextField(blank=True, verbose_name="Adresse")
     role = models.IntegerField(choices=ROLE_CHOICES, verbose_name="Rôle")
     valider = models.BooleanField(default=False, verbose_name="Inscription validée")
+    statut = models.CharField(max_length=50, blank=True, verbose_name="Statut")  # Ajout du champ statut
+    id_vehicule = models.IntegerField(null=True, blank=True, verbose_name="ID Véhicule")  # Ajout du champ id_vehicule
+    date_embauche = models.DateField(null=True, blank=True, verbose_name="Date d'embauche")  # Ajout du champ
+
 
     
     # Champs spécifiques aux fournisseurs

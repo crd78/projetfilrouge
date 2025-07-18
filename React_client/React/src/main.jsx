@@ -18,6 +18,7 @@ import NouveauDevis from "./pages/devis/nouveau-devis";
 import DashboardClient from "./pages/dashboard/dashboardClient";
 import DemandesInscription from "./pages/auth/demandes-inscription";
 import DashboardStock from "./pages/dashboard/dashboardStock";
+import DashboardCollaborateur from "./pages/dashboard/dashboardCollaborateur";
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -82,7 +83,17 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               </ProtectedRoute>
             } 
           />
-          
+
+          {/* Route protégée pour le dashboard - ROLE COLLABORATEUR (3) REQUIS */}
+          <Route 
+            path="/dashboard/collaborateur" 
+            element={
+              <ProtectedRoute requiredRole={3}>
+                <DashboardCollaborateur />
+              </ProtectedRoute>
+            } 
+          />
+
           {/* Avec navbar */}
           <Route element={<Layout />}>
             <Route index element={<Accueil />} />

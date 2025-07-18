@@ -5,7 +5,7 @@ from .models import (
     Product, UserProfile, Devis, 
     Commande, Ristourne, Entrepot, StockMouvement,
     Vehicule, Transport, Livraison,
-    DetailsCommande, Maintenance, Personne  # <-- Livreur supprimé
+    DetailsCommande, Maintenance, Personne  
 )
 from .models import Contact
 
@@ -16,7 +16,7 @@ class PersonneSerializer(serializers.ModelSerializer):
             'id', 'nom', 'prenom', 'telephone', 'email', 'password', 
             'adresse', 'role', 'fonction', 'code_postal', 'ville',
             'raison_sociale', 'siret', 'date_creation', 'date_miseajour',
-            'valider', 'date_embauche', 'statut', 'id_vehicule'  # Ajoute les champs livreur ici
+            'valider', 'statut', 'id_vehicule'  
         ]
 
     def create(self, validated_data):

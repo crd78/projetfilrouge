@@ -4,6 +4,8 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import "./Layout.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
+import defaultAvatar from "../assets/Image/AvatarDefaut.png";
+
 
 export default function Layout() {
   const { isLoggedIn, user } = useContext(AuthContext);
@@ -108,17 +110,16 @@ export default function Layout() {
               </button>
               <div className="user-info-navbar" onClick={() => handleNavClick("/profil")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.7rem" }}>
                 <img
-                  src={user.avatar}
+                  src={(user && user.avatar) ? user.avatar : defaultAvatar}
                   alt="avatar"
                   className="avatar-navbar"
-                  style={{ width: 40, height: 40, borderRadius: "50%" }}
                 />
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                   <span style={{ fontWeight: "bold", fontSize: "1rem" }}>
-                    {user.prenom} {user.nom}
+                    {user?.prenom} {user?.nom}
                   </span>
                   <span style={{ fontSize: "0.85rem", color: "#888" }}>
-                    {user.role}
+                    {user?.role}
                   </span>
                 </div>
               </div>
