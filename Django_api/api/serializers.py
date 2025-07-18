@@ -5,7 +5,7 @@ from .models import (
     Product, UserProfile, Devis, 
     Commande, Ristourne, Entrepot, StockMouvement,
     Vehicule, Transport, Livraison,
-    DetailsCommande, Maintenance, Personne,Livreur,StockMouvement  # Client a été fusionné dans Personne
+    DetailsCommande, Maintenance, Personne  # <-- Livreur supprimé
 )
 from .models import Contact
 
@@ -16,9 +16,8 @@ class PersonneSerializer(serializers.ModelSerializer):
             'id', 'nom', 'prenom', 'telephone', 'email', 'password', 
             'adresse', 'role', 'fonction', 'code_postal', 'ville',
             'raison_sociale', 'siret', 'date_creation', 'date_miseajour',
-            'valider'  # <-- AJOUTE CE CHAMP
+            'valider', 'date_embauche', 'statut', 'id_vehicule'  # Ajoute les champs livreur ici
         ]
-        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         # Hash le mot de passe avant de l'enregistrer
@@ -32,14 +31,7 @@ class PersonneSerializer(serializers.ModelSerializer):
             validated_data['password'] = make_password(validated_data.get('password'))
         return super().update(instance, validated_data)
 
-class LivreurSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Livreur
-        fields = [
-            'IdLivreur', 'Nom', 'Prenom', 'Telephone', 'Email',
-            'Adresse', 'CodePostal', 'Ville', 'DateEmbauche', 'Statut',
-            'DateCreation', 'DateMiseAJour'
-        ]
+
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:

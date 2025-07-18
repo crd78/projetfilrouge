@@ -232,3 +232,34 @@ def fournisseur_update(request, id):
         "task_id": task.id,
         "current_data": current_data
     })
+
+@api_view(['GET', 'POST'])
+def livreur_list(request):
+    if request.method == 'GET':
+        livreurs = Personne.objects.filter(role=4)
+        serializer = PersonneSerializer(livreurs, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        data = request.data
+        data['role'] = 4  # Forcer le rôle livreur
+        serializer = PersonneSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def livreur_detail(request, pk):
+    try:
+        livreur = Personne.objects.get(pk=pk, role=4)
+    except Personne.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def livreurs_by_status(request, status_value):
+    try:
+        livreurs = Personne.objects.filter(role=4, statut=status_value.upper())
+        serializer = PersonneSerializer(livreurs, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

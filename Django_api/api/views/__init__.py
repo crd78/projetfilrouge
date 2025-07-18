@@ -1,7 +1,9 @@
 # Importer toutes les vues
 from .user_views import register_user, user_list
 from .product_views import hello_world, item_list, product_list, product_detail
-from .personne_views import personne_list
+from .personne_views import (
+    livreur_list, livreur_detail, livreurs_by_status
+)
 from .devis_views import devis_list, devis_detail
 from .ristourne_views import (
     ristourne_list, ristourne_detail, 
@@ -18,11 +20,7 @@ from .vehicule_views import (
     vehicule_list, vehicule_detail,
     vehicule_transports, vehicules_by_status
 )
-from .livreur_views import (
-    livreur_list, livreur_detail,
-    livreurs_by_status, livreur_transports,
-    assign_vehicle_to_livreur
-)
+
 from .livraison_views import (
     livraison_list, livraison_detail,
     commande_livraisons, livraisons_by_statut,

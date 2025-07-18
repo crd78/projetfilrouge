@@ -3,7 +3,7 @@ from .models import (
     Product, UserProfile, Devis, 
     Commande, Ristourne, Entrepot, StockMouvement,
     Vehicule, Transport, Livraison, DetailsCommande,
-    Maintenance,Personne,Livreur  # Nouveaux modèles
+    Maintenance,Personne # Nouveaux modèles
 )
 
 admin.site.register(Product)
@@ -17,4 +17,3 @@ admin.site.register(Vehicule)
 admin.site.register(Transport) 
 admin.site.register(Maintenance)
 admin.site.register(Personne)
-admin.site.register(Livreur)

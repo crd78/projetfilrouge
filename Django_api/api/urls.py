@@ -9,12 +9,12 @@ from .views.commande_views import commande_list, commande_detail, commande_payer
 from .views.transport_views import transport_create, transport_update_status
 from .views.vehicule_views import vehicule_list, vehicule_maintenance, vehicule_detail, vehicule_transports, vehicules_by_status
 from .views.statistiques_views import statistiques_visites, statistiques_performances
-from .views.livreur_views import livreur_mission, livreur_livraison_termine, livreur_qr_code
 from .views.stats_views import stats_list, users_list
 from .views.personne_views import (
     client_list, client_detail, client_inscription,client_connexion,
     commercial_list, commercial_detail,
-    fournisseur_list, fournisseur_detail, fournisseur_create, fournisseur_update
+    fournisseur_list, fournisseur_detail, fournisseur_create, fournisseur_update,
+    livreur_list, livreur_detail, livreurs_by_status
 )
 # Import des vues de maintenance
 from .views.maintenance_views import (
@@ -85,10 +85,7 @@ urlpatterns = [
     path('statistiques/visites', statistiques_visites, name='statistiques_visites'),
     path('statistiques/performances', statistiques_performances, name='statistiques_performances'),
     
-    # Livreurs routes
-    path('livreurs/<int:id>/mission', livreur_mission, name='livreur_mission'),
-    path('livreurs/<int:id>/livraison', livreur_livraison_termine, name='livreur_livraison'),
-    path('livreurs/<int:id>/qr-code', livreur_qr_code, name='livreur_qr_code'),
+
     
     # Maintenance routes
     path('maintenances', maintenance_list, name='maintenance_list'),
