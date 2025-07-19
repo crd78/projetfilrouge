@@ -4,6 +4,7 @@ from rest_framework import status
 from ..models import Commande
 from ..serializers import CommandeSerializer
 from ..tasks import update_commande_task, commande_payer_task, commande_livrer_task
+import sys
 
 @api_view(['GET', 'POST'])
 def commande_list(request):
@@ -129,34 +130,132 @@ def commande_livrer(request, id):
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-def check_commande_task(request, task_id):
+def commandes_for_stock_manager(request):
     """
-    Vérifie l'état d'une tâche liée à une commande
+    Liste les commandes pour le chargé de stock avec possibilité de filtrer
     """
-    from celery.result import AsyncResult
+    # Filtres possibles
+    statut = request.GET.get('statut')
+    date_debut = request.GET.get('date_debut')
+    date_fin = request.GET.get('date_fin')
+    client_id = request.GET.get('client_id')
     
-    task_result = AsyncResult(task_id)
+    # Requête de base - exclure les commandes annulées et déjà livrées
+    commandes = Commande.objects.exclude(Statut__in=['ANNULEE', 'LIVREE'])
     
-    if task_result.ready():
-        if task_result.successful():
-            result = task_result.result
-            if result.get('success'):
-                return Response({
-                    "status": "completed",
-                    "result": result
-                })
-            else:
-                return Response({
-                    "status": "failed",
-                    "errors": result.get('errors') or result.get('error')
-                }, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({
-                "status": "failed",
-                "error": str(task_result.result)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
+    # Appliquer les filtres
+    if statut:
+        commandes = commandes.filter(Statut=statut.upper())
+    if date_debut:
+        commandes = commandes.filter(DateCommande__date__gte=date_debut)
+    if date_fin:
+        commandes = commandes.filter(DateCommande__date__lte=date_fin)
+    if client_id:
+        commandes = commandes.filter(IdClient=client_id)
+    
+    # Ordonner par date de commande (plus récent en premier)
+    commandes = commandes.order_by('-DateCommande')
+    
+    serializer = CommandeSerializer(commandes, many=True)
+    return Response({
+        'count': commandes.count(),
+        'commandes': serializer.data
+    })
+
+@api_view(['POST'])
+def creer_livraison_depuis_commande(request):
+    """
+    Crée une livraison à partir d'une commande pour le chargé de stock
+    """
+    print("DEBUG creer_livraison_depuis_commande payload:", request.data)
+    commande_id = request.data.get('commande_id')
+    entrepot_id = request.data.get('entrepot_id')
+    vehicule_id = request.data.get('vehicule_id')
+    date_prevue = request.data.get('date_prevue', None)
+    commentaire = request.data.get('commentaire', '')
+    
+    print(f"Valeurs reçues - commande_id: {commande_id}, entrepot_id: {entrepot_id}, vehicule_id: {vehicule_id}")
+    
+    # Validation stricte : véhicule obligatoire
+    if not commande_id or not entrepot_id or not vehicule_id:
+        print("Validation échouée - données manquantes")
+        return Response({'error': 'commande_id, entrepot_id et vehicule_id sont requis'}, 
+                       status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        print(f"Recherche de la commande {commande_id}...")
+        # Vérifier que la commande existe
+        commande = Commande.objects.get(pk=commande_id)
+        print(f"Commande trouvée: {commande}")
+        
+        # NOUVEAU : Vérifier que le véhicule existe
+        from ..models import Vehicule
+        try:
+            vehicule = Vehicule.objects.get(pk=vehicule_id)
+            print(f"Véhicule trouvé: {vehicule.Immatriculation}")
+        except Vehicule.DoesNotExist:
+            print(f"ERREUR: Véhicule {vehicule_id} n'existe pas")
+            return Response({'error': f'Véhicule {vehicule_id} non trouvé'}, 
+                           status=status.HTTP_404_NOT_FOUND)
+        
+        # NOUVEAU : Vérifier que l'entrepôt existe
+        from ..models import Entrepot
+        try:
+            entrepot = Entrepot.objects.get(pk=entrepot_id)
+            print(f"Entrepôt trouvé: {entrepot.Localisation}")
+        except Entrepot.DoesNotExist:
+            print(f"ERREUR: Entrepôt {entrepot_id} n'existe pas")
+            return Response({'error': f'Entrepôt {entrepot_id} non trouvé'}, 
+                           status=status.HTTP_404_NOT_FOUND)
+        
+        # Créer la livraison
+        from ..models import Livraison, Transport
+        
+        print("Création du transport...")
+        # Créer un transport basique
+        transport = Transport.objects.create(
+            CoutKilometre=0.50,
+            FraisFixes=20.00,
+            Distance=0.0,
+            IdVehicule_id=vehicule_id,  # ← AJOUTE LE VÉHICULE ICI AUSSI
+            Commentaire=f"Transport pour commande #{commande_id}"
+        )
+        print(f"Transport créé: {transport}")
+        
+        print("Création de la livraison...")
+        print(f"Tentative avec vehicule_id={vehicule_id} (type: {type(vehicule_id)})")
+        
+        # Créer la livraison avec véhicule obligatoire
+        livraison = Livraison.objects.create(
+            IdCommande=commande,
+            IdTransport=transport,
+            IdEntrepot_id=entrepot_id,
+            IdVehicule_id=vehicule_id,
+            DatePrevue=date_prevue,
+            Commentaire=commentaire,
+            Statut='PREPARATION'
+        )
+        print(f"Livraison créée: {livraison}")
+        
+        # Mettre à jour le statut de la commande
+        commande.Statut = 'EN_COURS'
+        commande.save()
+        print("Statut commande mis à jour")
+        
+        from ..serializers import LivraisonSerializer
+        serializer = LivraisonSerializer(livraison)
         return Response({
-            "status": "pending",
-            "message": "La tâche est toujours en cours"
-        })
+            'message': 'Livraison créée avec succès',
+            'livraison': serializer.data
+        }, status=status.HTTP_201_CREATED)
+        
+    except Commande.DoesNotExist:
+        print("Commande non trouvée")
+        return Response({'error': 'Commande non trouvée'}, 
+                       status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print("ERREUR lors de la création:", str(e))
+        import traceback
+        traceback.print_exc()
+        return Response({'error': str(e)}, 
+                       status=status.HTTP_500_INTERNAL_SERVER_ERROR)

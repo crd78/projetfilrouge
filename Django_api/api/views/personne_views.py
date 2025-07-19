@@ -157,59 +157,36 @@ def commercial_detail(request, id):
         commercial.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# Fonctions pour les fournisseurs (rôle = 3 par exemple)
-@api_view(['GET'])
-def fournisseur_list(request):
-    """
-    Liste les minoteries avec leurs produits associés.
-    """
-    fournisseurs = Personne.objects.filter(role=3)  # Supposons que Role=3 pour les fournisseurs
-    serializer = PersonneSerializer(fournisseurs, many=True)
     return Response(serializer.data)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def fournisseur_detail(request, id):
-    """
-    Détails d'une minoterie.
-    """
-    try:
-        fournisseur = Personne.objects.get(pk=id, role=3)
-    except Personne.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    # AJOUTE CE LOG EN TOUT PREMIER
+    print(f"🔥 FOURNISSEUR_DETAIL APPELÉE - Method: {request.method}, ID: {id}")
     
+    try:
+        fournisseur = Personne.objects.get(pk=id, role=6)
+        print(f"✅ Fournisseur trouvé: {fournisseur.nom}")
+    except Personne.DoesNotExist:
+        print(f"❌ Fournisseur ID={id} avec role=6 non trouvé")
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
     if request.method == 'GET':
         serializer = PersonneSerializer(fournisseur)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        # Envoie la tâche à Celery pour traitement asynchrone
-        task = update_fournisseur_task.delay(id, request.data)
-        
-        # Récupère les données actuelles pour la réponse
-        current_data = PersonneSerializer(fournisseur).data
-        
-        return Response({
-            "message": f"Mise à jour du fournisseur {id} en cours",
-            "task_id": task.id,
-            "current_data": current_data
-        })
+        print(f"🔄 PUT data: {request.data}")
+        serializer = PersonneSerializer(fournisseur, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            print(f"✅ Fournisseur mis à jour avec succès")
+            return Response(serializer.data)
+        print(f"❌ Erreurs serializer: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         fournisseur.delete()
+        print(f"🗑️ Fournisseur supprimé")
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-@api_view(['POST'])
-def fournisseur_create(request):
-    """
-    Permet à un commercial d'ajouter une nouvelle minoterie (fournisseur) dans l'application.
-    """
-    data = request.data
-    # Assurer que le rôle est correctement défini
-    data['role'] = 3  # Fournisseur
-    
-    serializer = PersonneSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
 def fournisseur_update(request, id):
@@ -233,20 +210,7 @@ def fournisseur_update(request, id):
         "current_data": current_data
     })
 
-@api_view(['GET', 'POST'])
-def livreur_list(request):
-    if request.method == 'GET':
-        livreurs = Personne.objects.filter(role=4)
-        serializer = PersonneSerializer(livreurs, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        data = request.data
-        data['role'] = 4  # Forcer le rôle livreur
-        serializer = PersonneSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def livreur_detail(request, pk):
@@ -263,3 +227,22 @@ def livreurs_by_status(request, status_value):
         return Response(serializer.data)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET', 'POST'])
+def fournisseur_list(request):
+    """
+    GET: Liste tous les fournisseurs (role=6)
+    POST: Crée un nouveau fournisseur (role=6)
+    """
+    if request.method == 'GET':
+        fournisseurs = Personne.objects.filter(role=6)  # <-- ici, role=6
+        serializer = PersonneSerializer(fournisseurs, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        data = request.data
+        data['role'] = 6  # Forcer le rôle fournisseur
+        serializer = PersonneSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

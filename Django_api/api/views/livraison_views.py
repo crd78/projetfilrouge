@@ -99,3 +99,32 @@ def update_livraison_status(request, pk, statut):
         return Response({"error": "Livraison non trouvée"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+def livraisons_for_stock_manager(request):
+    """
+    Liste les livraisons pour le chargé de stock
+    """
+    print(f"🚚 LIVRAISONS_FOR_STOCK_MANAGER appelée")
+    
+    # Filtres
+    statut = request.GET.get('statut')
+    entrepot_id = request.GET.get('entrepot_id')
+    
+    from ..models import Livraison
+    livraisons = Livraison.objects.all()
+    
+    if statut:
+        livraisons = livraisons.filter(Statut=statut.upper())
+    if entrepot_id:
+        livraisons = livraisons.filter(IdEntrepot=entrepot_id)
+    
+    livraisons = livraisons.order_by('-DateCreation')
+    
+    from ..serializers import LivraisonSerializer
+    serializer = LivraisonSerializer(livraisons, many=True)
+    return Response({
+        'count': livraisons.count(),
+        'livraisons': serializer.data
+    })
+

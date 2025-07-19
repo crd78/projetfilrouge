@@ -5,7 +5,10 @@ from .views.stockmouvement_view import stockmouvement_list
 # Import des vues nécessaires
 from .views.product_views import product_list, product_detail
 from .views.devis_views import devis_list, devis_detail, devis_accepter
-from .views.commande_views import commande_list, commande_detail, commande_payer, commande_livrer
+from .views.commande_views import (
+    commande_list, commande_detail, commande_payer, commande_livrer,
+    commandes_for_stock_manager, creer_livraison_depuis_commande  # <-- Ajouter ces deux
+)
 from .views.transport_views import transport_create, transport_update_status
 from .views.vehicule_views import vehicule_list, vehicule_maintenance, vehicule_detail, vehicule_transports, vehicules_by_status
 from .views.statistiques_views import statistiques_visites, statistiques_performances
@@ -13,8 +16,8 @@ from .views.stats_views import stats_list, users_list
 from .views.personne_views import (
     client_list, client_detail, client_inscription,client_connexion,
     commercial_list, commercial_detail,
-    fournisseur_list, fournisseur_detail, fournisseur_create, fournisseur_update,
-    livreur_list, livreur_detail, livreurs_by_status
+    fournisseur_list, fournisseur_detail, fournisseur_update,
+    livreur_detail, livreurs_by_status
 )
 # Import des vues de maintenance
 from .views.maintenance_views import (
@@ -31,7 +34,8 @@ from .views.entrepot_views import entrepot_list, entrepot_detail, produit_entrep
 # Import des vues de livraison
 from .views.livraison_views import (
     livraison_list, livraison_detail, commande_livraisons, 
-    livraisons_by_statut, update_livraison_status
+    livraisons_by_statut, update_livraison_status,
+    livraisons_for_stock_manager  
 )
 from .views.health_views import health_check, simple_test,test_celery
 from .views.contact_views import contact_list, contact_detail, contact_marquer_traite
@@ -65,11 +69,9 @@ urlpatterns = [
     path('commandes/<int:id>/payer', commande_payer, name='commande_payer'),
     path('commandes/<int:id>/livrer', commande_livrer, name='commande_livrer'),
     
-    # Fournisseurs/Minoteries routes (consolidées)
-    path('minoteries', fournisseur_list, name='minoterie_list'),
-    path('minoteries/<int:id>', fournisseur_detail, name='minoterie_detail'),
-    path('fournisseurs', fournisseur_create, name='fournisseur_create'),
-    path('fournisseurs/<int:id>', fournisseur_update, name='fournisseur_update'),
+    # Fournisseurs routes (consolidées)
+    path('fournisseurs/', fournisseur_list, name='fournisseur_list'),  # GET (liste) et POST (création)
+    path('fournisseurs/<int:id>', fournisseur_detail, name='fournisseur_detail'),  # GET, PUT, DELETE
     
     # Transport routes
     path('transport', transport_create, name='transport_create'),
@@ -120,6 +122,10 @@ urlpatterns = [
     path('contacts/<int:pk>/', contact_detail, name='contact_detail'),
     path('contacts/<int:pk>/traite/', contact_marquer_traite, name='contact_marquer_traite'),
     path('stockmouvements', stockmouvement_list, name='stockmouvement_list'),
+    path('stock-manager/commandes/', commandes_for_stock_manager, name='commandes_stock_manager'),
+    path('stock-manager/livraisons/', livraisons_for_stock_manager, name='livraisons_stock_manager'),
+    path('stock-manager/creer-livraison/', creer_livraison_depuis_commande, name='creer_livraison'),
+    
     
 
     # Statistiques desktop
