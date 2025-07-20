@@ -108,11 +108,13 @@ const Connexion = () => {
           setTimeout(() => {
             // Redirection conditionnelle selon le rôle
             if (userData.role === 2) { // Commercial
-              navigate('/dashboard/Commercial');
+              navigate('/dashboard/commercial');
+            } else if (userData.role === 3) { // Collaborateur
+              navigate('/dashboard/collaborateur');
             } else if (userData.role === 5) { // ChargéStock
-              navigate('/stock');
+              navigate('/dashboard/stock');
             } else {
-              navigate('/profil'); // ou une autre page pour les clients
+              navigate('/dashboard/client'); // Pour les clients (role 1)
             }
           }, 1500);
         } else {

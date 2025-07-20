@@ -282,7 +282,7 @@ const Dashboard = () => {
             <h2 className="section-title">Ristournes accordées</h2>
             <button 
               className="view-all-btn"
-              onClick={() => navigate('/ristournes')}
+              onClick={() => navigate('/dashboard/commercial')}
             >
           
             </button>
