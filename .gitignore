@@ -50,3 +50,17 @@
 
 # Embedded web-server pid file
 /.web-server-pid
+
+Django_api/api/models/__pycache__/
+
+Django_api/api/views/__pycache__/
+
+Django_api/django_project/__pycache__/
+
+Django_api/api/migrations/__pycache__/
+
+Django_api/api/__pycache__/
+
+CahierDesChargesCDA25.pdf
+ConsignesProjetFilRouge.pdf
+Conception/
