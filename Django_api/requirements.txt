@@ -9,3 +9,5 @@ drf-yasg
 pymongo
 celery
 amqp
+pytest
+requests
