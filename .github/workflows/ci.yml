@@ -31,6 +31,7 @@ jobs:
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: django_api_db
       DOCKER_CONTAINER: 1
+      DJANGO_SETTINGS_MODULE: django_project.settings
 
     steps:
     - name: Checkout code
