@@ -10,6 +10,27 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    env:
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: test_db
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -23,6 +44,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r Django_api/requirements.txt
+
+    - name: Wait for MySQL
+      run: |
+        sleep 20
 
     - name: Run migrations
       run: |
