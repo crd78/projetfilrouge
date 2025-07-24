@@ -11,3 +11,4 @@ celery
 amqp
 pytest
 requests
+pytest-django
