@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
+      db:
         image: mysql:8
         env:
           MYSQL_ROOT_PASSWORD: root
@@ -25,11 +25,12 @@ jobs:
           --health-retries=3
 
     env:
-      MYSQL_HOST: 127.0.0.1
+      MYSQL_HOST: db
       MYSQL_PORT: 3306
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: test_db
+      DOCKER_CONTAINER: 1
 
     steps:
     - name: Checkout code
