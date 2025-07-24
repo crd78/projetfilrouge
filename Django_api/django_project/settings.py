@@ -98,18 +98,30 @@ CELERY_TASK_DEFAULT_QUEUE = 'celery'
 
 # Remplacez la configuration DATABASES existante par celle-ci
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'django_api_db',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': DB_HOST,
+#         'PORT': '3306',  # Changé de 3307 à 3306 à l'intérieur du conteneur
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+#             'unix_socket': '',
+#         },
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django_api_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': DB_HOST,
-        'PORT': '3306',  # Changé de 3307 à 3306 à l'intérieur du conteneur
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'unix_socket': '',
-        },
+        'NAME': os.environ.get('MYSQL_DATABASE', 'django_api_db'),
+        'USER': os.environ.get('MYSQL_USER', 'root'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'root'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('MYSQL_PORT', '3306'),
     }
 }
 
