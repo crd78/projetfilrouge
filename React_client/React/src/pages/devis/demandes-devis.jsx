@@ -243,7 +243,7 @@ const DemandesDevis = () => {
         </div>
         <button 
           className="btn-retour"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/dashboard/commercial')}
         >
           ← Retour au dashboard
         </button>
