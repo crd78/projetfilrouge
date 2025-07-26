@@ -116,11 +116,20 @@ class RistourneSerializer(serializers.ModelSerializer):
         fields = ['idRistourne', 'DateRistourne', 'IdDevis', 'IdCommercial', 'MontantRistourne', 'Commentaire']
 
 class CommandeSerializer(serializers.ModelSerializer):
+    client = PersonneSerializer(source='IdClient', read_only=True)
+    produits = serializers.SerializerMethodField()
+
     class Meta:
         model = Commande
-        fields = ['IdCommande', 'IdClient', 'DateCommande', 'Statut', 
-                  'MontantTotalHT', 'MontantTotalTTC', 'DateMiseAJour']
+        fields = [
+            'IdCommande', 'client', 'IdClient', 'DateCommande', 'Statut',
+            'MontantTotalHT', 'MontantTotalTTC', 'DateMiseAJour', 'produits'
+        ]
         read_only_fields = ['DateCommande', 'DateMiseAJour']
+
+    def get_produits(self, obj):
+        details = DetailsCommande.objects.filter(IdCommande=obj.IdCommande)
+        return DetailsCommandeSerializer(details, many=True).data
 
 class EntrepotSerializer(serializers.ModelSerializer):
     class Meta:
@@ -152,17 +161,24 @@ class TransportSerializer(serializers.ModelSerializer):
 
 
 class DetailsCommandeSerializer(serializers.ModelSerializer):
+    produit = ProductSerializer(source='IdProduit', read_only=True)
+
     class Meta:
         model = DetailsCommande
-        fields = ['IdCommande', 'IdProduit', 'Quantite']
+        fields = ['IdProduit', 'produit', 'Quantite']
 
 class LivraisonSerializer(serializers.ModelSerializer):
+    commande = CommandeSerializer(source='IdCommande', read_only=True)
+
     class Meta:
         model = Livraison
-        fields = ['IdLivraison', 'IdCommande', 'IdTransport', 'Statut',
-                 'IdEntrepot', 'IdVehicule', 'DatePrevue', 'DateLivraison',
-                 'Commentaire', 'DateCreation', 'DateMiseAJour']
+        fields = [
+            'IdLivraison', 'commande', 'IdCommande', 'IdTransport', 'Statut',
+            'IdEntrepot', 'IdVehicule', 'DatePrevue', 'DateLivraison',
+            'Commentaire', 'DateCreation', 'DateMiseAJour'
+        ]
         read_only_fields = ['DateCreation', 'DateMiseAJour']
+
 
 
 class MaintenanceSerializer(serializers.ModelSerializer):
