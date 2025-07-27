@@ -2,9 +2,9 @@ from django.db import models
 
 class Product(models.Model):
     TYPE_CHOICES = [
-        ('MATERIEL', 'Matériel'),
-        ('LOGICIEL', 'Logiciel'),
-        ('SERVICE', 'Service'),
+        ('Farines', 'Farines'),
+        ('Produits laitiers', 'Produits laitiers'),
+        ('Ingrédient', 'Ingrédient'),
         ('AUTRE', 'Autre'),
     ]
     

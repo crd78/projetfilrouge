@@ -5,6 +5,7 @@ from rest_framework import status
 from ..models import Devis, Product,StockMouvement, Entrepot
 from ..serializers import DevisSerializer
 from ..tasks import update_devis_task, accepter_devis_task  # Ajoute cet import
+from .stockmouvement_view import get_stock_produit_entrepot
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -15,39 +16,46 @@ def devis_detail(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        serializer = DevisSerializer(devis)
-        return Response(serializer.data)
+        details = DetailsCommande.objects.filter(IdDevis=devis)
+        produits = []
+        for detail in details:
+            produit = detail.IdProduit
+            produits.append({
+                "id": produit.IdProduit,
+                "nom": produit.NomProduit,
+                "PrixHT": float(produit.PrixHT),
+                "PrixTTC": float(produit.PrixTTC),
+                "quantite": detail.Quantite
+            })
+        devis_data = DevisSerializer(devis).data
+        devis_data['produits'] = produits
+        return Response(devis_data)
     
     elif request.method == 'PUT':
-        approuver = request.data.get('Approuver', False)
-        if approuver and not devis.Approuver:
-            details = DetailsCommande.objects.filter(IdDevis=devis)
-            for detail in details:
-                produit = detail.IdProduit
-                quantite = detail.Quantite
-                if produit.QuantiteStock >= quantite:
-                    entrepot = Entrepot.objects.filter(IdProduit=produit).first()
-                    if not entrepot:
-                        return Response({"error": f"Aucun entrepôt trouvé pour {produit.NomProduit}"}, status=400)
-                    # C'est ici qu'il faut créer le mouvement de stock :
-                    StockMouvement.objects.create(
-                        IdProduit=produit,
-                        IdEntrepot=entrepot,
-                        Quantite=quantite,
-                        TypeMouvement='SORTIE'
-                    )
-                else:
-                    return Response(
-                        {"error": f"Stock insuffisant pour {produit.NomProduit}"},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-            devis.Approuver = True
-            devis.save()
-        serializer = DevisSerializer(devis, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            print("Début PUT devis_detail pour devis", id)
+            approuver = request.data.get('Approuver', False)
+            print("Valeur Approuver reçue :", approuver)
+
+            # Met à jour les autres champs du devis (dont idCommercial)
+            serializer = DevisSerializer(devis, data=request.data, partial=True)
+            if serializer.is_valid():
+                devis = serializer.save()
+            else:
+                print("Erreur serializer:", serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            if approuver and not devis.Approuver:
+                devis.Approuver = True
+                devis.save()
+                print("Devis approuvé :", devis.IdDevis)
+            else:
+                print("Aucune opération de stock, devis déjà approuvé ou non demandé")
+            print("Fin PUT devis_detail pour devis", id)
+            return Response(DevisSerializer(devis).data)
+        except Exception as e:
+            print("Erreur PUT devis_detail:", str(e))
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET', 'POST'])
 def devis_list(request):

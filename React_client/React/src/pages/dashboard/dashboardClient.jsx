@@ -19,6 +19,7 @@ const DashboardClient = () => {
       });
       if (res.ok) {
         const data = await res.json();
+        console.log("Réponse API devis :", data); // <-- LOG AJOUTÉ
         const filtered = (data.results || data).filter(
           d => d.idCommercial !== null && d.IdClient === user.id
         );
@@ -155,58 +156,74 @@ const DashboardClient = () => {
                     <th>Date</th>
                     <th>Montant HT</th>
                     <th>Montant TTC</th>
+                    <th>Remise</th> {/* Ajout colonne */}
                     <th>Statut</th>
                     <th>Commercial</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {devisFiltres.map((d) => (
-                    <tr key={d.IdDevis || d.id}>
-                      <td data-label="ID">#{d.IdDevis || d.id}</td>
-                      <td data-label="Date">
-                        {d.date_creation ? new Date(d.date_creation).toLocaleDateString('fr-FR') : '-'}
-                      </td>
-                      <td data-label="Montant HT">
-                        {d.MontantTotalHT != null && !isNaN(parseFloat(d.MontantTotalHT))
-                          ? parseFloat(d.MontantTotalHT).toFixed(2) + ' €'
-                          : '-'}
-                      </td>
-                      <td data-label="Montant TTC">
-                        {d.MontantTotalTTC != null && !isNaN(parseFloat(d.MontantTotalTTC))
-                          ? parseFloat(d.MontantTotalTTC).toFixed(2) + ' €'
-                          : '-'}
-                      </td>
-                      <td data-label="Statut">
-                        <span className={getStatutClass(getStatutLabel(d))}>
-                          {getStatutLabel(d)}
-                        </span>
-                      </td>
-                      <td data-label="Commercial">
-                        {d.idCommercial && d.idCommercial.nom
-                          ? d.idCommercial.nom
-                          : d.idCommercial || '-'}
-                      </td>
-                      <td data-label="Actions">
-                        <div className="devis-actions">
-                          <button 
-                            className="btn-accepter"
-                            onClick={() => accepterDevis(d.IdDevis || d.id)}
-                            disabled={actionInProgress}
-                          >
-                            Accepter
-                          </button>
-                          <button 
-                            className="btn-refuser"
-                            onClick={() => refuserDevis(d.IdDevis || d.id)}
-                            disabled={actionInProgress}
-                          >
-                            Refuser
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {devisFiltres.map((d) => {
+                    let montantHT = 0;
+                    let montantTTC = 0;
+                    if (Array.isArray(d.produits)) {
+                      d.produits.forEach(prod => {
+                        montantHT += (parseFloat(prod.PrixHT) || 0) * (parseInt(prod.quantite) || 1);
+                        montantTTC += (parseFloat(prod.PrixTTC) || 0) * (parseInt(prod.quantite) || 1);
+                      });
+                    } else {
+                      montantHT = parseFloat(d.MontantTotalHT) || 0;
+                      montantTTC = parseFloat(d.MontantTotalTTC) || 0;
+                    }
+
+                    return (
+                      <tr key={d.IdDevis || d.id}>
+                        <td data-label="ID">#{d.IdDevis || d.id}</td>
+                        <td data-label="Date">
+                          {d.date_creation ? new Date(d.date_creation).toLocaleDateString('fr-FR') : '-'}
+                        </td>
+                        <td data-label="Montant HT">
+                          {montantHT.toFixed(2) + ' €'}
+                        </td>
+                        <td data-label="Montant TTC">
+                          {montantTTC.toFixed(2) + ' €'}
+                        </td>
+                        <td data-label="Remise">
+                          {d.remise != null && !isNaN(parseFloat(d.remise))
+                            ? parseFloat(d.remise).toFixed(2) + ' €'
+                            : '-'}
+                        </td>
+                        <td data-label="Statut">
+                          <span className={getStatutClass(getStatutLabel(d))}>
+                            {getStatutLabel(d)}
+                          </span>
+                        </td>
+                        <td data-label="Commercial">
+                          {d.idCommercial && d.idCommercial.nom
+                            ? d.idCommercial.nom
+                            : d.idCommercial || '-'}
+                        </td>
+                        <td data-label="Actions">
+                          <div className="devis-actions">
+                            <button 
+                              className="btn-accepter"
+                              onClick={() => accepterDevis(d.IdDevis || d.id)}
+                              disabled={actionInProgress}
+                            >
+                              Accepter
+                            </button>
+                            <button 
+                              className="btn-refuser"
+                              onClick={() => refuserDevis(d.IdDevis || d.id)}
+                              disabled={actionInProgress}
+                            >
+                              Refuser
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

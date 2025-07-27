@@ -21,31 +21,36 @@ const NouveauDevis = () => {
     demande?.produits?.map(prod => ({
       id: prod.id,
       nom: prod.nom,
-      prixHT: '',
+      prixHT: prod.PrixHT || prod.prixHT || 0,
+      prixTTC: prod.PrixTTC || prod.prixTTC || 0,
+      quantite: prod.quantite || prod.Quantite || 1,
       remise: 0
     })) || []
   );
 
-  // Gestion du prix/remise par produit
-  const handleChange = (idx, field, value) => {
+  // Gestion de la remise uniquement
+  const handleRemiseChange = (idx, value) => {
     setProduits(prev =>
       prev.map((prod, i) =>
-        i === idx ? { ...prod, [field]: value } : prod
+        i === idx ? { ...prod, remise: value } : prod
       )
     );
   };
 
-  // Calcul du prix TTC (exemple simple, à adapter selon TVA)
-  const getPrixTTC = (prixHT, remise) => {
-    const prixRemise = prixHT - (prixHT * (remise / 100));
-    return (prixRemise * 1.2).toFixed(2); // TVA 20%
+  // Calcul du prix TTC avec remise
+  const getPrixTTC = (prixTTC, remise) => {
+    const prixRemise = prixTTC - (prixTTC * (remise / 100));
+    return Number(prixRemise).toFixed(2);
   };
 
   const handleSubmit = async (e) => {
   e.preventDefault();
 
   // Calcule le montant de la ristourne
-  const montantRistourne = produits.reduce((acc, prod) => acc + ((parseFloat(prod.prixHT) || 0) * (parseFloat(prod.remise) || 0) / 100), 0);
+  const montantRistourne = produits.reduce(
+    (acc, prod) => acc + (((parseFloat(prod.prixHT) || 0) * (parseInt(prod.quantite) || 1)) * (parseFloat(prod.remise) || 0) / 100),
+    0
+  );
 
   // Prépare le payload du devis
   const devisPayload = {
@@ -55,10 +60,22 @@ const NouveauDevis = () => {
       .filter(prod => !!prod.id)
       .map(prod => ({
         id: Number(prod.id),
-        quantite: 1 // ou la vraie quantité si tu la gères dans le formulaire
+        quantite: parseInt(prod.quantite) || 1,
+        prixHT: Number(((parseFloat(prod.prixHT) || 0) * (parseInt(prod.quantite) || 1)).toFixed(2)),
+        prixTTC: Number((((parseFloat(prod.prixHT) || 0) * (parseInt(prod.quantite) || 1)) * 1.05).toFixed(2))
       })),
-    MontantTotalHT: produits.reduce((acc, prod) => acc + (parseFloat(prod.prixHT) || 0), 0),
-    MontantTotalTTC: produits.reduce((acc, prod) => acc + (prod.prixHT ? parseFloat(getPrixTTC(prod.prixHT, prod.remise)) : 0), 0)
+    MontantTotalHT: Number(
+      produits.reduce(
+        (acc, prod) => acc + ((parseFloat(prod.prixHT) || 0) * (parseInt(prod.quantite) || 1)),
+        0
+      ).toFixed(2)
+    ),
+    MontantTotalTTC: Number(
+      produits.reduce(
+        (acc, prod) => acc + (((parseFloat(prod.prixHT) || 0) * (parseInt(prod.quantite) || 1)) * 1.05),
+        0
+      ).toFixed(2)
+    )
   };
   // Ajoute ce log pour voir le payload envoyé
   console.log('Payload envoyé pour update devis:', devisPayload);
@@ -123,40 +140,40 @@ const NouveauDevis = () => {
           <thead>
             <tr>
               <th>Produit</th>
+              <th>Quantité</th>
               <th>Prix HT (€)</th>
-              <th>Remise (%)</th>
               <th>Prix TTC (€)</th>
+              <th>Remise (%)</th>
+              <th>Prix TTC avec remise (€)</th>
             </tr>
           </thead>
           <tbody>
-            {produits.map((prod, idx) => (
-              <tr key={idx}>
-                <td>{prod.nom}</td>
-                <td>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={prod.prixHT}
-                    onChange={e => handleChange(idx, 'prixHT', parseFloat(e.target.value) || 0)}
-                    required
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={prod.remise}
-                    onChange={e => handleChange(idx, 'remise', parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td>
-                  {prod.prixHT ? getPrixTTC(prod.prixHT, prod.remise) : '-'}
-                </td>
-              </tr>
-            ))}
+            {produits.map((prod, idx) => {
+              const prixHTTotal = (parseFloat(prod.prixHT) || 0) * (parseInt(prod.quantite) || 1);
+              const prixTTCTotal = (parseFloat(prod.prixTTC) || 0) * (parseInt(prod.quantite) || 1);
+              const remise = parseFloat(prod.remise) || 0;
+              const prixTTCAvecRemise = prixTTCTotal - (prixTTCTotal * remise / 100);
+
+              return (
+                <tr key={idx}>
+                  <td>{prod.nom}</td>
+                  <td>{prod.quantite}</td>
+                  <td>{prixHTTotal.toFixed(2)}</td>
+                  <td>{prixTTCTotal.toFixed(2)}</td>
+                  <td>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={prod.remise}
+                      onChange={e => handleRemiseChange(idx, parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td>{prixTTCAvecRemise.toFixed(2)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         <button type="submit" className="btn-creer-devis">Créer le devis</button>

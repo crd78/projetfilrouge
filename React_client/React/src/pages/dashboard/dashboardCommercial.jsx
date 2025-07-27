@@ -16,7 +16,16 @@ const Dashboard = () => {
     nouveauxClients: 0,
     ristournesAccordees: 0
   });
-  
+    const [newProduct, setNewProduct] = useState({
+    NomProduit: '',
+    TypeProduit: 'Farines',
+    PrixHT: ''
+  });
+  const [addProductLoading, setAddProductLoading] = useState(false);
+  const [addProductError, setAddProductError] = useState('');
+  const [addProductSuccess, setAddProductSuccess] = useState('');
+  const [products, setProducts] = useState([]);
+
   const [recentDevis, setRecentDevis] = useState([]);
   const [demandesDevis, setDemandesDevis] = useState([]); // ✅ Demandes de devis
   const [recentClients, setRecentClients] = useState([]);
@@ -80,6 +89,24 @@ const Dashboard = () => {
           nouveauxClients: 8,
           ristournesAccordees: 15
         });
+      }
+
+      // Récupération des produits
+      try {
+        const productsResponse = await fetch(`${API_CONFIG.BASE_URL}api/produits`, {
+          headers: {
+            ...API_CONFIG.DEFAULT_HEADERS,
+            'Authorization': `Bearer ${getToken()}`
+          }
+        });
+        if (productsResponse.ok) {
+          const productsData = await productsResponse.json();
+          setProducts(productsData.results || productsData);
+        } else {
+          setProducts([]);
+        }
+      } catch (error) {
+        setProducts([]);
       }
 
       // Récupération des demandes de devis non approuvées (Approuver = false)
@@ -212,6 +239,40 @@ const Dashboard = () => {
     );
   }
 
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    setAddProductLoading(true);
+    setAddProductError('');
+    setAddProductSuccess('');
+    try {
+      const authHeaders = {
+        ...API_CONFIG.DEFAULT_HEADERS,
+        'Authorization': `Bearer ${getToken()}`
+      };
+      const response = await fetch(`${API_CONFIG.BASE_URL}api/produits`, {
+        method: 'POST',
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          NomProduit: newProduct.NomProduit,
+          TypeProduit: newProduct.TypeProduit,
+          PrixHT: parseFloat(newProduct.PrixHT)
+        })
+      });
+      if (response.ok) {
+        setAddProductSuccess('Produit ajouté !');
+        setNewProduct({ NomProduit: '', TypeProduit: 'Farines', PrixHT: '' });
+      } else {
+        setAddProductError('Erreur lors de l\'ajout');
+      }
+    } catch (err) {
+      setAddProductError('Erreur réseau');
+    }
+    setAddProductLoading(false);
+  };
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -309,6 +370,72 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="dashboard-section">
+        <h2>Ajouter un produit</h2>
+        <form onSubmit={handleAddProduct} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Nom du produit"
+            value={newProduct.NomProduit}
+            onChange={e => setNewProduct({ ...newProduct, NomProduit: e.target.value })}
+            required
+          />
+          <select
+            value={newProduct.TypeProduit}
+            onChange={e => setNewProduct({ ...newProduct, TypeProduit: e.target.value })}
+          >
+            <option value="Ingrédient">Ingrédient</option>
+            <option value="Produits laitiers">Produits laitiers</option>
+            <option value="Farines">Farines</option>
+            <option value="AUTRE">Autre</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Prix HT"
+            value={newProduct.PrixHT}
+            onChange={e => setNewProduct({ ...newProduct, PrixHT: e.target.value })}
+            required
+            min="0"
+            step="0.01"
+          />
+          <button type="submit" disabled={addProductLoading}>Ajouter</button>
+        </form>
+        {addProductError && <p style={{ color: 'red' }}>{addProductError}</p>}
+        {addProductSuccess && <p style={{ color: 'green' }}>{addProductSuccess}</p>}
+      </div>
+
+      <div className="dashboard-section">
+        <h2>Liste des produits</h2>
+        {products.length === 0 ? (
+          <p>Aucun produit</p>
+        ) : (
+          <ul>
+            {products.map(product => (
+              <li key={product.IdProduit} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <span>{product.NomProduit} ({product.TypeProduit}) - {product.PrixHT} € HT</span>
+                <button
+                  onClick={async () => {
+                    if (window.confirm('Supprimer ce produit ?')) {
+                      await fetch(`${API_CONFIG.BASE_URL}api/produits/${product.IdProduit}/`, {
+                        method: 'DELETE',
+                        headers: {
+                          ...API_CONFIG.DEFAULT_HEADERS,
+                          'Authorization': `Bearer ${getToken()}`
+                        }
+                      });
+                      setProducts(products.filter(p => p.IdProduit !== product.IdProduit));
+                    }
+                  }}
+                  style={{ color: 'white', background: 'red', border: 'none', padding: '0.5rem 1rem', cursor: 'pointer' }}
+                >
+                  Supprimer
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Actions rapides commerciales */}

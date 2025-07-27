@@ -39,8 +39,18 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = [
             'IdProduit', 'NomProduit', 'TypeProduit', 'PrixHT', 'PrixTTC',
             'IdMouvement', 'DateCreation', 'DateMiseAJour'
-        ]  # <-- SUPPRIME 'QuantiteStock'
-        read_only_fields = ['DateCreation', 'DateMiseAJour']
+        ]
+        read_only_fields = ['DateCreation', 'DateMiseAJour', 'PrixTTC']
+
+    def create(self, validated_data):
+        prix_ht = validated_data.get('PrixHT')
+        validated_data['PrixTTC'] = round(float(prix_ht) * 1.05, 2) if prix_ht is not None else None
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        prix_ht = validated_data.get('PrixHT', instance.PrixHT)
+        validated_data['PrixTTC'] = round(float(prix_ht) * 1.05, 2) if prix_ht is not None else instance.PrixTTC
+        return super().update(instance, validated_data)
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -85,20 +95,28 @@ class DevisSerializer(serializers.ModelSerializer):
     produits = serializers.SerializerMethodField()
     nomProduits = serializers.SerializerMethodField()
     client = PersonneSerializer(source='IdClient', read_only=True)
+    remise = serializers.SerializerMethodField()  # <-- AJOUT
 
     class Meta:
         model = Devis
         fields = [
             'IdDevis', 'client', 'IdClient', 'idCommercial', 'MontantTotalHT', 'MontantTotalTTC',
-            'DateCreation', 'DateMiseAJour', 'produits', 'nomProduits', 'Approuver'
+            'DateCreation', 'DateMiseAJour', 'produits', 'nomProduits', 'Approuver', 'remise'  # <-- AJOUT
         ]
         read_only_fields = ['DateCreation', 'DateMiseAJour']
+
+    def get_remise(self, obj):
+        # Récupère la ristourne associée au devis
+        ristourne = Ristourne.objects.filter(IdDevis=obj).first()
+        return float(ristourne.MontantRistourne) if ristourne else 0.0
 
     def get_produits(self, obj):
         return [
             {
                 "id": dc.IdProduit_id,
                 "nom": dc.IdProduit.NomProduit,
+                "PrixHT": float(dc.IdProduit.PrixHT),
+                "PrixTTC": float(dc.IdProduit.PrixTTC),
                 "quantite": dc.Quantite
             }
             for dc in DetailsCommande.objects.filter(IdDevis=obj)

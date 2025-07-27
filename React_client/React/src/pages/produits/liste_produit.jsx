@@ -30,61 +30,39 @@ const ListeProduit = () => {
   }, [panier]);
 
   useEffect(() => {
-    setProduits([
-      {
-        id: 1,
-        nom: 'Farine T55',
-        categorie: 'Farines',
-        stock: 1200,
-        unite: 'kg',
-        prix: 0.85,
-        fournisseur: 'Minoterie Dupont',
-        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80'
-      },
-      {
-        id: 2,
-        nom: 'Levure fraîche',
-        categorie: 'Ingrédients',
-        stock: 80,
-        unite: 'kg',
-        prix: 2.10,
-        fournisseur: 'Levures Martin',
-        image: 'https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80'
-      },
-      {
-        id: 3,
-        nom: 'Sucre blanc',
-        categorie: 'Ingrédients',
-        stock: 350,
-        unite: 'kg',
-        prix: 1.20,
-        fournisseur: 'Sucrerie Centrale',
-        image: 'https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=400&q=80'
-      },
-      {
-        id: 4,
-        nom: 'Beurre doux',
-        categorie: 'Produits laitiers',
-        stock: 60,
-        unite: 'kg',
-        prix: 5.50,
-        fournisseur: 'Laiterie des Alpes',
-        image: 'https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80'
+    // Appel API pour récupérer les produits
+    fetch(`${API_CONFIG.BASE_URL}api/produits`, {
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+        'Content-Type': 'application/json'
       }
-    ]);
-  }, []);
+    })
+      .then(res => res.json())
+      .then(data => {
+        // Si l'API retourne un tableau direct
+        setProduits(data);
+        // Si l'API retourne {results: [...]}, utilise setProduits(data.results);
+      })
+      .catch(() => setProduits([]));
+  }, [getToken]);
 
   const ajouterAuPanier = (produit, quantite) => {
     setPanier(prev => {
-      const exist = prev.find(item => item.id === produit.id);
+      const exist = prev.find(item => item.IdProduit === produit.IdProduit);
       if (exist) {
         return prev.map(item =>
-          item.id === produit.id
+          item.IdProduit === produit.IdProduit
             ? { ...item, quantite: item.quantite + quantite }
             : item
         );
       }
-      return [...prev, { ...produit, quantite }];
+      // Ajoute le prix TTC dans l'objet du panier
+      return [...prev, {
+        id: produit.IdProduit,
+        nom: produit.NomProduit,
+        prix: produit.PrixTTC ? Number(produit.PrixTTC) : 0,
+        quantite,
+      }];
     });
   };
 
@@ -159,35 +137,38 @@ const ListeProduit = () => {
       </button>
       <div className="produits-grid">
         {produits.map(produit => (
-          <div className="produit-card" key={produit.id}>
-            <img src={produit.image} alt={produit.nom} className="produit-image" />
+          <div className="produit-card" key={produit.IdProduit}>
+           
             <div className="produit-info">
-              <h2 className="produit-nom">{produit.nom}</h2>
-              <div className="produit-categorie">{produit.categorie}</div>
-              <div className="produit-prix">{produit.prix.toFixed(2)} € / {produit.unite}</div>
+              <h2 className="produit-nom">{produit.NomProduit}</h2>
+              <div className="produit-categorie">{produit.TypeProduit}</div>
+              <div className="produit-prix">{produit.PrixTTC ? Number(produit.PrixTTC).toFixed(2) : '0.00'} € TTC</div>
               <div className="produit-stock">
                 <span>Stock : </span>
-                <span className={getStockProduit(produit.id) > 0 ? "stock-ok" : "stock-ko"}>
-                  {getStockProduit(produit.id) > 0 ? `${getStockProduit(produit.id)} ${produit.unite}` : "Rupture"}
+                <span className={getStockProduit(produit.IdProduit) > 0 ? "stock-ok" : "stock-ko"}>
+                  {getStockProduit(produit.IdProduit) > 0 ? `${getStockProduit(produit.IdProduit)}` : "Rupture"}
                 </span>
               </div>
-              <div className="produit-fournisseur">Fournisseur : {produit.fournisseur}</div>
+              {/* Si tu as un champ fournisseur, adapte ici */}
+              {produit.Fournisseur && (
+                <div className="produit-fournisseur">Fournisseur : {produit.Fournisseur}</div>
+              )}
 
               <input
                 type="number"
                 min="1"
-                value={quantites[produit.id] || 1}
+                value={quantites[produit.IdProduit] || 1}
                 onChange={e =>
-                  setQuantites(q => ({ ...q, [produit.id]: parseInt(e.target.value) || 1 }))
+                  setQuantites(q => ({ ...q, [produit.IdProduit]: parseInt(e.target.value) || 1 }))
                 }
                 style={{ width: 60, marginRight: 8 }}
               />
               <button
                 className="btn-panier"
-                disabled={produit.stock === 0}
+                disabled={getStockProduit(produit.IdProduit) === 0}
                 onClick={() => {
-                  if (produit.stock > 0) {
-                    ajouterAuPanier(produit, quantites[produit.id] || 1);
+                  if (getStockProduit(produit.IdProduit) > 0) {
+                    ajouterAuPanier(produit, quantites[produit.IdProduit] || 1);
                   }
                 }}
               >
