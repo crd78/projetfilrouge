@@ -37,18 +37,15 @@ def livraison_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        # Envoie la tâche à Celery pour traitement asynchrone
-        task = update_livraison_status_task.delay(pk, request.data)
-        
-        # Récupère les données actuelles pour la réponse
-        current_data = LivraisonSerializer(livraison).data
-        
-        return Response({
-            "message": f"Mise à jour de la livraison {pk} en cours",
-            "task_id": task.id,
-            "current_data": current_data
-        })
-    
+        print("Payload reçu:", request.data)
+        serializer = LivraisonSerializer(livraison, data=request.data, partial=True)
+        if serializer.is_valid():
+            print("Avant save Statut:", serializer.validated_data.get('Statut'))
+            obj = serializer.save()
+            print("Après save Statut:", obj.Statut)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     elif request.method == 'DELETE':
         livraison.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

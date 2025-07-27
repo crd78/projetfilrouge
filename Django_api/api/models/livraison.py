@@ -57,7 +57,7 @@ class Livraison(models.Model):
         return f"Livraison #{self.IdLivraison} - Commande #{self.IdCommande.IdCommande} - {self.Statut}"
     
     def save(self, *args, **kwargs):
-        # Mise à jour automatique du statut de la commande
+        print(f"DEBUG Statut avant save: {self.Statut}")  # Ajoute ceci pour voir la valeur
         commande = self.IdCommande
         if self.Statut == 'LIVREE':
             commande.Statut = 'LIVREE'
@@ -68,8 +68,8 @@ class Livraison(models.Model):
         elif self.Statut == 'ANNULEE':
             commande.Statut = 'ANNULEE'
             commande.save(update_fields=['Statut'])
-        
         super().save(*args, **kwargs)
+     
     
     class Meta:
         verbose_name = "Livraison"
