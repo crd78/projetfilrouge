@@ -691,3 +691,97 @@ form button[type="submit"]:hover {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.transport-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  background: var(--gray-50);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-200);
+  margin-top: 1.5rem;
+}
+
+.transport-form input,
+.transport-form select {
+  flex: 1 1 220px;
+  min-width: 180px;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.transport-form input:focus,
+.transport-form select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(184, 134, 11, 0.15);
+  outline: none;
+}
+
+.transport-form label {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.transport-form button[type="button"] {
+  background: var(--info-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 0.5rem;
+}
+
+.transport-form button[type="button"]:hover {
+  background: var(--primary-color);
+}
+
+.transport-form .btn-add {
+  background: linear-gradient(135deg, var(--success-color), #059669);
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1.5rem;
+  margin-top: 1rem;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.transport-form .btn-add:hover {
+  background: linear-gradient(135deg, #059669, var(--success-color));
+  box-shadow: var(--shadow-md);
+}
+
+.transport-form ul {
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.97rem;
+  color: var(--gray-700);
+}
+
+.transport-form ul li {
+  margin-bottom: 0.2rem;
+}
+
+@media (max-width: 900px) {
+  .transport-form {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  .transport-form input,
+  .transport-form select {
+    min-width: 100%;
+  }
+}

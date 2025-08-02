@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import API_CONFIG from '../../api.config.js';
 import './dashboardStock.css';
+import TransportRequestForm from './TransportRequestForm';
 
 const DashboardStock = () => {
   const { getToken } = useAuth();
@@ -782,7 +783,16 @@ const DashboardStock = () => {
         {activeTab === 'stock' && renderStockTab()}
         {activeTab === 'commandes' && renderCommandesTab()}
         {activeTab === 'livraisons' && renderLivraisonsTab()}
-        {activeTab === 'fournisseurs' && renderFournisseursTab()}
+        {activeTab === 'fournisseurs' && (
+        <>
+          {renderFournisseursTab()}
+          <TransportRequestForm
+            entrepots={entrepots}
+            vehicules={vehicules}
+            produits={produits}
+          />
+        </>
+      )}
       </div>
     </div>
   );
