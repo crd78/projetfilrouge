@@ -173,32 +173,43 @@ def creer_livraison_depuis_commande(request):
     vehicule_id = request.data.get('vehicule_id')
     date_prevue = request.data.get('date_prevue', None)
     commentaire = request.data.get('commentaire', '')
-    
-    print(f"Valeurs reçues - commande_id: {commande_id}, entrepot_id: {entrepot_id}, vehicule_id: {vehicule_id}")
-    
+
+    # Nouveaux paramètres transport
+    distance = request.data.get('distance')
+    cout_kilometre = request.data.get('cout_kilometre')
+    frais_fixes = request.data.get('frais_fixes')
+    prix_total = request.data.get('prix_total')
+
+    print(f"Valeurs reçues - commande_id: {commande_id}, entrepot_id: {entrepot_id}, vehicule_id: {vehicule_id}, distance: {distance}, cout_kilometre: {cout_kilometre}, frais_fixes: {frais_fixes}, prix_total: {prix_total}")
+
     # Validation stricte : véhicule obligatoire
     if not commande_id or not entrepot_id or not vehicule_id:
         print("Validation échouée - données manquantes")
         return Response({'error': 'commande_id, entrepot_id et vehicule_id sont requis'}, 
                        status=status.HTTP_400_BAD_REQUEST)
-    
+
+    # Vérif des paramètres transport
+    if distance is None or cout_kilometre is None or frais_fixes is None or prix_total is None:
+        print("Validation échouée - paramètres transport manquants")
+        return Response({'error': 'distance, cout_kilometre, frais_fixes et prix_total sont requis'}, 
+                       status=status.HTTP_400_BAD_REQUEST)
+
     try:
         print(f"Recherche de la commande {commande_id}...")
-        # Vérifier que la commande existe
         commande = Commande.objects.get(pk=commande_id)
         print(f"Commande trouvée: {commande}")
-        
-        # NOUVEAU : Vérifier que le véhicule existe
+
+        # Vérifier que le véhicule existe
         from ..models import Vehicule
         try:
             vehicule = Vehicule.objects.get(pk=vehicule_id)
             print(f"Véhicule trouvé: {vehicule.Immatriculation}")
         except Vehicule.DoesNotExist:
             print(f"ERREUR: Véhicule {vehicule_id} n'existe pas")
-            return Response({'error': f'Véhicule {vehicule_id} non trouvé'}, 
+            return Response({'error': f'Vehicule {vehicule_id} non trouvé'}, 
                            status=status.HTTP_404_NOT_FOUND)
-        
-        # NOUVEAU : Vérifier que l'entrepôt existe
+
+        # Vérifier que l'entrepôt existe
         from ..models import Entrepot
         try:
             entrepot = Entrepot.objects.get(pk=entrepot_id)
@@ -207,25 +218,24 @@ def creer_livraison_depuis_commande(request):
             print(f"ERREUR: Entrepôt {entrepot_id} n'existe pas")
             return Response({'error': f'Entrepôt {entrepot_id} non trouvé'}, 
                            status=status.HTTP_404_NOT_FOUND)
-        
+
         # Créer la livraison
         from ..models import Livraison, Transport
-        
+
         print("Création du transport...")
-        # Créer un transport basique
         transport = Transport.objects.create(
-            CoutKilometre=0.50,
-            FraisFixes=20.00,
-            Distance=0.0,
-            IdVehicule_id=vehicule_id,  # ← AJOUTE LE VÉHICULE ICI AUSSI
+            CoutKilometre=cout_kilometre,
+            FraisFixes=frais_fixes,
+            Distance=distance,
+            CoutTotal=prix_total,  
+            IdVehicule_id=vehicule_id,
             Commentaire=f"Transport pour commande #{commande_id}"
         )
         print(f"Transport créé: {transport}")
-        
+
         print("Création de la livraison...")
         print(f"Tentative avec vehicule_id={vehicule_id} (type: {type(vehicule_id)})")
-        
-        # Créer la livraison avec véhicule obligatoire
+
         livraison = Livraison.objects.create(
             IdCommande=commande,
             IdTransport=transport,
@@ -236,19 +246,19 @@ def creer_livraison_depuis_commande(request):
             Statut='PREPARATION'
         )
         print(f"Livraison créée: {livraison}")
-        
+
         # Mettre à jour le statut de la commande
         commande.Statut = 'EN_COURS'
         commande.save()
         print("Statut commande mis à jour")
-        
+
         from ..serializers import LivraisonSerializer
         serializer = LivraisonSerializer(livraison)
         return Response({
             'message': 'Livraison créée avec succès',
             'livraison': serializer.data
         }, status=status.HTTP_201_CREATED)
-        
+
     except Commande.DoesNotExist:
         print("Commande non trouvée")
         return Response({'error': 'Commande non trouvée'}, 

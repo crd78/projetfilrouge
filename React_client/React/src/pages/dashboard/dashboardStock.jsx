@@ -12,6 +12,11 @@ const DashboardStock = () => {
   const [entrepots, setEntrepots] = useState([]);
   const [mouvements, setMouvements] = useState([]);
   const [vehicules, setVehicules] = useState([]);
+  const [livraisonForm, setLivraisonForm] = useState({
+    distance: '',
+    quantite: ''
+  });
+  const [commandeEnCours, setCommandeEnCours] = useState(null);
   
   // États pour les commandes et livraisons
   const [commandes, setCommandes] = useState([]);
@@ -253,15 +258,25 @@ const DashboardStock = () => {
     }
   };
 
-  const creerLivraison = async (commandeId, entrepotId, vehiculeId = null) => {
+  const creerLivraison = async (commandeId, entrepotId, vehiculeId = null, distance = 0, quantite = 0) => {
     const headers = getAuthHeaders();
+
+    const totalQuantite = Number(quantite);
+    const fraisFixes = 20 + (2 * totalQuantite);
+    const coutKilometre = 1.25;
+    const dist = Number(distance);
+    const prixTotal = (coutKilometre * dist) + fraisFixes;
+
     const payload = {
       commande_id: commandeId,
       entrepot_id: entrepotId,
       vehicule_id: Number(vehiculeId),
-      date_prevue: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      date_prevue: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      cout_kilometre: coutKilometre,
+      frais_fixes: fraisFixes,
+      distance: dist,
+      prix_total: prixTotal
     };
-    console.log("Payload envoyé à l'API /creer-livraison :", payload);
 
     try {
       const res = await fetch(`${API_CONFIG.BASE_URL}api/stock-manager/creer-livraison/`, {
@@ -273,7 +288,7 @@ const DashboardStock = () => {
       if (res.ok) {
         setMessage('Livraison créée avec succès !');
         loadCommandes();
-        loadInitialData(); // Recharger les livraisons
+        loadInitialData();
       } else {
         setMessage('Erreur : ' + data.error);
       }
@@ -551,19 +566,11 @@ const DashboardStock = () => {
                                 </option>
                               ))}
                             </select>
-                            <button
+                           <button
                               className="btn-validate"
                               onClick={() => {
-                                const selection = commandeSelections[commande.IdCommande] || { entrepot: '', vehicule: '' };
-                                console.log("DEBUG AVANT ENVOI - sélection:", selection);
-                                console.log("DEBUG AVANT ENVOI - entrepot:", selection.entrepot);
-                                console.log("DEBUG AVANT ENVOI - vehicule:", selection.vehicule);
-                                
-                                creerLivraison(
-                                  commande.IdCommande,
-                                  selection.entrepot,
-                                  selection.vehicule
-                                );
+                                setCommandeEnCours(commande.IdCommande);
+                                setLivraisonForm({ distance: '', quantite: '' });
                               }}
                               disabled={!selection.entrepot || !selection.vehicule}
                             >
@@ -765,6 +772,8 @@ const DashboardStock = () => {
     </section>
   );
 
+  
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -777,6 +786,50 @@ const DashboardStock = () => {
         )}
       </div>
 
+      {/* Affiche le modal ici */}
+      {commandeEnCours && (
+        <div className="modal">
+          <h3>Créer la livraison</h3>
+          <label>
+            Distance (km) :
+            <input
+              type="number"
+              value={livraisonForm.distance}
+              onChange={e => setLivraisonForm(f => ({ ...f, distance: e.target.value }))}
+              min="1"
+              required
+            />
+          </label>
+          <label>
+            Quantité :
+            <input
+              type="number"
+              value={livraisonForm.quantite}
+              onChange={e => setLivraisonForm(f => ({ ...f, quantite: e.target.value }))}
+              min="1"
+              required
+            />
+          </label>
+          <button
+            onClick={() => {
+              const selection = commandeSelections[commandeEnCours] || { entrepot: '', vehicule: '' };
+              creerLivraison(
+                commandeEnCours,
+                selection.entrepot,
+                selection.vehicule,
+                livraisonForm.distance,
+                livraisonForm.quantite
+              );
+              setCommandeEnCours(null);
+            }}
+            disabled={!livraisonForm.distance || !livraisonForm.quantite}
+          >
+            Confirmer
+          </button>
+          <button onClick={() => setCommandeEnCours(null)}>Annuler</button>
+        </div>
+      )}
+
       {renderTabNavigation()}
 
       <div className="tab-content">
@@ -784,15 +837,15 @@ const DashboardStock = () => {
         {activeTab === 'commandes' && renderCommandesTab()}
         {activeTab === 'livraisons' && renderLivraisonsTab()}
         {activeTab === 'fournisseurs' && (
-        <>
-          {renderFournisseursTab()}
-          <TransportRequestForm
-            entrepots={entrepots}
-            vehicules={vehicules}
-            produits={produits}
-          />
-        </>
-      )}
+          <>
+            {renderFournisseursTab()}
+            <TransportRequestForm
+              entrepots={entrepots}
+              vehicules={vehicules}
+              produits={produits}
+            />
+          </>
+        )}
       </div>
     </div>
   );
