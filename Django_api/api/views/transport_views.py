@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from ..models import Transport
 from ..serializers import TransportSerializer
@@ -41,3 +42,31 @@ def transport_update_status(request, id):
         return Response({"error": "Transport non trouvé"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['GET'])
+def transport_list_role5(request):
+    """
+    Retourne la liste des transports uniquement si l'utilisateur a le rôle 5.
+    """
+    user = request.user
+    if not hasattr(user, 'role') or user.role != 5:
+        return Response({"error": "Accès refusé"}, status=status.HTTP_403_FORBIDDEN)
+    transports = Transport.objects.all().order_by('-IdTransport')  # <-- Correction ici
+    serializer = TransportSerializer(transports, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+def transport_update_commentaire(request, id):
+    """
+    Met à jour uniquement le commentaire d'un transport (sans Celery)
+    """
+    try:
+        transport = Transport.objects.get(pk=id)
+    except Transport.DoesNotExist:
+        return Response({"error": "Transport non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+    serializer = TransportSerializer(transport, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

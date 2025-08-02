@@ -229,3 +229,4 @@ class StockMouvementSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockMouvement
         fields = '__all__'
+        read_only_fields = ['IdMouvement']  

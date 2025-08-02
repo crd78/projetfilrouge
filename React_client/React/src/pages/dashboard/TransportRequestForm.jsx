@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import API_CONFIG from '../../api.config.js';
 import { useAuth } from '../../context/AuthContext';
 
 const TransportRequestForm = ({ entrepots, vehicules, produits }) => {
   const { getToken } = useAuth();
+  const [fournisseurs, setFournisseurs] = useState([]);
   const [form, setForm] = useState({
     fournisseur: '',
     telephone: '',
@@ -14,8 +15,28 @@ const TransportRequestForm = ({ entrepots, vehicules, produits }) => {
     typeCamion: '',
     camion: '',
     destination: '',
-    distance: '' // <-- Ajouté
-    });
+    distance: ''
+  });
+    // Charger la liste des fournisseurs (role=6)
+    useEffect(() => {
+    const fetchFournisseurs = async () => {
+      try {
+        const res = await fetch(`${API_CONFIG.BASE_URL}api/fournisseurs/`, {
+          headers: {
+            'Authorization': `Bearer ${getToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFournisseurs(Array.isArray(data) ? data.filter(f => f.role === 6 || f.Role === 6) : []);
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    fetchFournisseurs();
+  }, [getToken]);
   const [produitLigne, setProduitLigne] = useState({ id: '', quantite: '' });
   const [message, setMessage] = useState('');
 
@@ -27,7 +48,7 @@ const TransportRequestForm = ({ entrepots, vehicules, produits }) => {
     }));
     setProduitLigne({ id: '', quantite: '' });
   };
-
+  const [produitsEntrepot, setProduitsEntrepot] = useState([]);
   const handleSubmit = async (e) => {
   e.preventDefault();
   setMessage('');
@@ -59,8 +80,11 @@ const TransportRequestForm = ({ entrepots, vehicules, produits }) => {
     IdVehicule: form.camion ? Number(form.camion) : null,
     CoutTotal: 0,
     Distance: Number(form.distance) || 0,
-    DateDebut: dateDebutISO // <-- format attendu par Django
+    DateDebut: dateDebutISO,
+    Commentaire: "Commande fournisseur",
   };
+
+  
 
   try {
     const res = await fetch(`${API_CONFIG.BASE_URL}api/transport`, {
@@ -98,24 +122,39 @@ const TransportRequestForm = ({ entrepots, vehicules, produits }) => {
       <h2>🚚 Demande de transport fournisseur</h2>
       {message && <div className="message">{message}</div>}
       <form onSubmit={handleSubmit} className="transport-form">
-        <input
-          placeholder="Nom du fournisseur"
+        {/* Sélection du fournisseur */}
+        <label>Fournisseur :</label>
+        <select
           value={form.fournisseur}
-          onChange={e => setForm(f => ({ ...f, fournisseur: e.target.value }))}
+          onChange={e => {
+            const selectedId = e.target.value;
+            const selected = fournisseurs.find(f => String(f.id || f.IdFournisseur) === String(selectedId));
+            setForm(f => ({
+              ...f,
+              fournisseur: selectedId,
+              telephone: selected ? (selected.telephone || selected.Telephone) : '',
+              email: selected ? (selected.email || selected.Email) : ''
+            }));
+          }}
           required
-        />
+        >
+          <option value="">Sélectionner un fournisseur</option>
+          {fournisseurs.map(f => (
+            <option key={f.id || f.IdFournisseur} value={f.id || f.IdFournisseur}>
+              {f.nom || f.Nom || f.NomFournisseur} {f.prenom || f.Prenom || ''}
+            </option>
+          ))}
+        </select>
         <input
           placeholder="Téléphone"
           value={form.telephone}
-          onChange={e => setForm(f => ({ ...f, telephone: e.target.value }))}
-          required
+          readOnly
         />
         <input
           placeholder="Email"
           type="email"
           value={form.email}
-          onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-          required
+          readOnly
         />
         <input
           placeholder="N° commande fournisseur"

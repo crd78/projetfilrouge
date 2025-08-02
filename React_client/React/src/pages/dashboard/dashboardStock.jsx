@@ -17,6 +17,11 @@ const DashboardStock = () => {
     quantite: ''
   });
   const [commandeEnCours, setCommandeEnCours] = useState(null);
+  const [transportsFournisseur, setTransportsFournisseur] = useState([]);
+  const [editQuantites, setEditQuantites] = useState({});
+  const [editSelections, setEditSelections] = useState({}); // Ajoute cet état
+  
+
   
   // États pour les commandes et livraisons
   const [commandes, setCommandes] = useState([]);
@@ -25,6 +30,11 @@ const DashboardStock = () => {
   
   // États pour les fournisseurs
   const [fournisseurs, setFournisseurs] = useState([]);
+    useEffect(() => {
+      fetch(`${API_CONFIG.BASE_URL}api/fournisseurs/`)
+        .then(res => res.json())
+        .then(data => setFournisseurs(Array.isArray(data) ? data : []));
+    }, []);
   const [newFournisseur, setNewFournisseur] = useState({
     nom: '',
     prenom: '',
@@ -56,6 +66,7 @@ const DashboardStock = () => {
   // Chargement initial des données
   useEffect(() => {
     loadInitialData();
+    loadTransportsFournisseur();
   }, []);
 
   const loadInitialData = async () => {
@@ -102,6 +113,82 @@ const DashboardStock = () => {
     }
   };
 
+  const loadTransportsFournisseur = async () => {
+    const headers = getAuthHeaders();
+    try {
+      const res = await fetch(`${API_CONFIG.BASE_URL}api/transports/role5/`, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        setTransportsFournisseur(
+          (Array.isArray(data) ? data : []).filter(
+            t =>
+              t.Commentaire && // commentaire non vide ou non null
+              t.Commentaire !== "Commande fournisseur validée" &&
+              !t.Commentaire.startsWith("Transport pour commande")
+          )
+        );
+      }
+    } catch (error) {
+      setMessage("Erreur lors du chargement des transports fournisseur");
+    }
+  };
+
+
+  const handleValiderQuantiteTransport = async (transport) => {
+    const quantite = editQuantites[transport.IdTransport] ?? transport.Quantite ?? 0;
+    const selection = editSelections[transport.IdTransport] || {};
+    if (!quantite || quantite <= 0) {
+      setMessage("Quantité invalide");
+      return;
+    }
+    if (!selection.produit || !selection.entrepot) {
+      setMessage("Veuillez sélectionner un produit et un entrepôt");
+      return;
+    }
+    const headers = getAuthHeaders();
+    let mouvementOk = false;
+    try {
+      // 1. Création du mouvement de stock
+      const res = await fetch(`${API_CONFIG.BASE_URL}api/stockmouvements`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          IdProduit: selection.produit,
+          IdEntrepot: selection.entrepot,
+          Quantite: Number(quantite),
+          TypeMouvement: "ENTREE",
+          Commentaire: `Transport fournisseur #${transport.IdTransport}`
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage("Mouvement de stock créé !");
+        mouvementOk = true;
+      } else {
+        return;
+      }
+    } catch (e) {
+ 
+    }
+
+    // 2. Mise à jour du commentaire, même si le mouvement a échoué
+    try {
+      await fetch(`${API_CONFIG.BASE_URL}api/transports/${transport.IdTransport}/commentaire/`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          Commentaire: "Commande fournisseur validée"
+        })
+      });
+      if (mouvementOk) {
+        loadInitialData();
+        loadTransportsFournisseur();
+      }
+    } catch (e) {
+      // Optionnel : afficher une erreur si la mise à jour du commentaire échoue
+    }
+  };
+
   // Fonctions de calcul de stock
   const getStockGlobalProduit = (produitId) => {
     return mouvements
@@ -126,7 +213,7 @@ const DashboardStock = () => {
   };
 
   // Gestion des mouvements de stock
-  const handleStockMovement = async (e, typeMovement) => {
+ const handleStockMovement = async (e, typeMovement) => {
     e.preventDefault();
     setMessage('');
     
@@ -141,20 +228,20 @@ const DashboardStock = () => {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          IdProduit: Number(ajout.produit),
-          IdEntrepot: Number(ajout.entrepot),
+          IdProduit: ajout.produit,         // <-- utilise la valeur du formulaire
+          IdEntrepot: ajout.entrepot,       // <-- idem
           Quantite: Number(ajout.quantite),
-          TypeMouvement: typeMovement
+          TypeMouvement: typeMovement,      // <-- utilise le type passé à la fonction
+          Commentaire: typeMovement === "ENTREE" ? "Ajout manuel" : "Retrait manuel"
         })
       });
-      
       const data = await res.json();
       if (res.ok) {
-        setMessage(`Stock ${typeMovement === 'ENTREE' ? 'ajouté' : 'retiré'} avec succès`);
-        setAjout({ produit: '', entrepot: '', quantite: '' });
-        setMouvements(m => [...m, data]);
+        setMessage("Mouvement de stock créé !");
+        setAjout({ produit: '', entrepot: '', quantite: '' }); // reset form
+        loadInitialData();
       } else {
-        setMessage('Erreur : ' + JSON.stringify(data));
+        setMessage("Erreur lors de la création du mouvement : " + JSON.stringify(data));
       }
     } catch (error) {
       setMessage('Erreur lors de l\'opération');
@@ -278,22 +365,61 @@ const DashboardStock = () => {
       prix_total: prixTotal
     };
 
+    // Dans handleValiderQuantiteTransport
     try {
-      const res = await fetch(`${API_CONFIG.BASE_URL}api/stock-manager/creer-livraison/`, {
+      // 1. Création du mouvement de stock
+      const res = await fetch(`${API_CONFIG.BASE_URL}api/stockmouvements`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          IdProduit: selection.produit,
+          IdEntrepot: selection.entrepot,
+          Quantite: Number(quantite),
+          TypeMouvement: "ENTREE",
+          Commentaire: `Transport fournisseur #${transport.IdTransport}`
+        })
       });
-      const data = await res.json();
+      
+      // Sécurise la récupération du JSON (évite les erreurs si réponse non-JSON)
+      let data = {};
+      try { data = await res.json(); } catch (e) { /* Ignore parsing error */ }
+      
       if (res.ok) {
-        setMessage('Livraison créée avec succès !');
-        loadCommandes();
-        loadInitialData();
+        setMessage("Mouvement de stock créé !");
+        
+        // 2. Mise à jour du commentaire - AVEC LOGS DÉTAILLÉS
+        try {
+          console.log("Envoi requête update commentaire:", transport.IdTransport);
+          
+          const commentRes = await fetch(`${API_CONFIG.BASE_URL}api/transports/${transport.IdTransport}/commentaire/`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({
+              Commentaire: "Commande fournisseur validée"
+            })
+          });
+          
+          const commentText = await commentRes.text();
+          console.log("Status:", commentRes.status);
+          console.log("Réponse:", commentText);
+          
+          if (!commentRes.ok) {
+            setMessage(`Erreur ${commentRes.status}: ${commentText}`);
+          } else {
+            setMessage("Mouvement créé et commentaire mis à jour!");
+            loadInitialData();
+            loadTransportsFournisseur();
+          }
+        } catch (err) {
+          console.error("ERREUR UPDATE COMMENTAIRE:", err);
+          setMessage(`Exception: ${err.message}`);
+        }
       } else {
-        setMessage('Erreur : ' + data.error);
+        setMessage("Erreur lors de la création du mouvement : " + JSON.stringify(data));
       }
-    } catch (error) {
-      setMessage('Erreur lors de la création de la livraison');
+    } catch (e) {
+      console.error("ERREUR GLOBALE:", e);
+      setMessage(`Exception globale: ${e.message}`);
     }
   };
 
@@ -769,6 +895,66 @@ const DashboardStock = () => {
           <button type="submit" className="btn-add-supplier">Ajouter le fournisseur</button>
         </form>
       </div>
+       {/* Liste des transports Commande fournisseur */}
+     <section>
+        <h2>🚚 Transports Commande fournisseur</h2>
+        <ul>
+          {transportsFournisseur.map(t => (
+            <li key={t.id || t.IdTransport}>
+              {t.Commentaire} - Véhicule: {t.IdVehicule} - Distance: {t.Distance} km
+              <select
+                value={(editSelections[t.IdTransport]?.produit) || ''}
+                onChange={e =>
+                  setEditSelections(s => ({
+                    ...s,
+                    [t.IdTransport]: { ...s[t.IdTransport], produit: e.target.value }
+                  }))
+                }
+                style={{ marginLeft: 10 }}
+              >
+                <option value="">Sélectionner produit</option>
+                {produits.map(p => (
+                  <option key={p.IdProduit} value={p.IdProduit}>{p.NomProduit}</option>
+                ))}
+              </select>
+              <select
+                value={(editSelections[t.IdTransport]?.entrepot) || ''}
+                onChange={e =>
+                  setEditSelections(s => ({
+                    ...s,
+                    [t.IdTransport]: { ...s[t.IdTransport], entrepot: e.target.value }
+                  }))
+                }
+                style={{ marginLeft: 10 }}
+              >
+                <option value="">Sélectionner entrepôt</option>
+                {entrepots.map(e => (
+                  <option key={e.IdEntrepot} value={e.IdEntrepot}>{e.Localisation}</option>
+                ))}
+              </select>
+              <input
+                type="number"
+                min="1"
+                style={{ width: 80, marginLeft: 10 }}
+                value={editQuantites[t.IdTransport] ?? t.Quantite ?? ''}
+                onChange={e =>
+                  setEditQuantites(q => ({
+                    ...q,
+                    [t.IdTransport]: e.target.value
+                  }))
+                }
+                placeholder="Quantité"
+              />
+              <button
+                style={{ marginLeft: 10 }}
+                onClick={() => handleValiderQuantiteTransport(t)}
+              >
+                Valider
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
     </section>
   );
 

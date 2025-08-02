@@ -9,7 +9,7 @@ from .views.commande_views import (
     commande_list, commande_detail, commande_payer, commande_livrer,
     commandes_for_stock_manager, creer_livraison_depuis_commande  # <-- Ajouter ces deux
 )
-from .views.transport_views import transport_create, transport_update_status
+from .views.transport_views import transport_create, transport_update_status,transport_list_role5,transport_update_commentaire
 from .views.vehicule_views import vehicule_list, vehicule_maintenance, vehicule_detail, vehicule_transports, vehicules_by_status
 from .views.statistiques_views import statistiques_visites, statistiques_performances
 from .views.stats_views import stats_list, users_list
@@ -76,7 +76,9 @@ urlpatterns = [
     # Transport routes
     path('transport', transport_create, name='transport_create'),
     path('transport/<int:id>/status', transport_update_status, name='transport_update_status'),
-    
+    path('transports/role5/', transport_list_role5),
+      path('transports/<int:id>/commentaire/', transport_update_commentaire, name='transport_update_commentaire'),
+
     # Véhicules routes
     path('vehicules', vehicule_list, name='vehicule_list'),
     path('vehicules/<int:pk>', vehicule_detail, name='vehicule_detail'),
