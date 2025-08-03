@@ -37,8 +37,7 @@ export default function Layout() {
    
     // Gestion stock (rôle 5 uniquement)
     { label: "Gestion stock", path: "/dashboard/stock", show: isLoggedIn && user?.role === 5 },
-    // Entrepôts (rôle 2 ou 5)
-    { label: "Entrepôts", path: "/entrepots", show: isLoggedIn && (user?.role === 5) },
+    
     // Profil (connecté)
     { label: "Profil", path: "/profil", show: isLoggedIn }
   ];
