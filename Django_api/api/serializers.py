@@ -136,18 +136,25 @@ class RistourneSerializer(serializers.ModelSerializer):
 class CommandeSerializer(serializers.ModelSerializer):
     client = PersonneSerializer(source='IdClient', read_only=True)
     produits = serializers.SerializerMethodField()
+    livraisons = serializers.SerializerMethodField()  # <-- AJOUT
 
     class Meta:
         model = Commande
         fields = [
             'IdCommande', 'client', 'IdClient', 'DateCommande', 'Statut',
-            'MontantTotalHT', 'MontantTotalTTC', 'DateMiseAJour', 'produits'
+            'MontantTotalHT', 'MontantTotalTTC', 'DateMiseAJour', 'produits',
+            'livraisons'  # <-- AJOUT
         ]
         read_only_fields = ['DateCommande', 'DateMiseAJour']
 
     def get_produits(self, obj):
         details = DetailsCommande.objects.filter(IdCommande=obj.IdCommande)
         return DetailsCommandeSerializer(details, many=True).data
+
+    def get_livraisons(self, obj):
+        from .serializers import LivraisonSerializer
+        livraisons = Livraison.objects.filter(IdCommande=obj.IdCommande)
+        return LivraisonSerializer(livraisons, many=True).data
 
 class EntrepotSerializer(serializers.ModelSerializer):
     class Meta:
@@ -186,12 +193,11 @@ class DetailsCommandeSerializer(serializers.ModelSerializer):
         fields = ['IdProduit', 'produit', 'Quantite']
 
 class LivraisonSerializer(serializers.ModelSerializer):
-    commande = CommandeSerializer(source='IdCommande', read_only=True)
-
+   
     class Meta:
         model = Livraison
         fields = [
-            'IdLivraison', 'commande', 'IdCommande', 'IdTransport', 'Statut',
+            'IdLivraison', 'IdCommande', 'IdTransport', 'Statut',
             'IdEntrepot', 'IdVehicule', 'DatePrevue', 'DateLivraison',
             'Commentaire', 'DateCreation', 'DateMiseAJour'
         ]

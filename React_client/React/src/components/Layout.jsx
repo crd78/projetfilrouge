@@ -23,21 +23,16 @@ export default function Layout() {
   // Affichage conditionnel des liens selon le rôle
   const navLinks = [
     { label: "Accueil", path: "/accueil", show: true },
-    { label: "Nos Prestations", dropdown: [
-        { label: "Test 1", path: "#" },
-        { label: "Test 2", path: "#" }
-      ], show: true
-    },
     { label: "Nos Produits", path: "/produits", show: true },
     { label: "Contact", path: "/contact", show: true },
     // Dashboard client (rôle 1 uniquement)
     { label: "Mon espace client", path: "/dashboard/client", show: isLoggedIn && user?.role === 1 },
     // Dashboard commercial (rôle 2 uniquement)
     { label: "Dashboard commercial", path: "/dashboard/commercial", show: isLoggedIn && user?.role === 2 },
-   
+  
     // Gestion stock (rôle 5 uniquement)
     { label: "Gestion stock", path: "/dashboard/stock", show: isLoggedIn && user?.role === 5 },
-    
+    // 
     // Profil (connecté)
     { label: "Profil", path: "/profil", show: isLoggedIn }
   ];
