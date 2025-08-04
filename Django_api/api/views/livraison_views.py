@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from ..models import Livraison, Commande, Transport
-from ..serializers import LivraisonSerializer, CommandeSerializer
+from ..serializers import LivraisonSerializer, CommandeSerializer,LivraisonDetailSerializer
 from ..tasks import update_livraison_status_task
 
 @api_view(['GET', 'POST'])
@@ -125,3 +125,11 @@ def livraisons_for_stock_manager(request):
         'livraisons': serializer.data
     })
 
+@api_view(['GET'])
+def livraison_detail_enriched(request, pk):
+    try:
+        livraison = Livraison.objects.get(pk=pk)
+    except Livraison.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = LivraisonDetailSerializer(livraison)
+    return Response(serializer.data)

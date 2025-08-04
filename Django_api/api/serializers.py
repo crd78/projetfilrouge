@@ -203,6 +203,16 @@ class LivraisonSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['DateCreation', 'DateMiseAJour']
 
+class LivraisonDetailSerializer(serializers.ModelSerializer):
+    commande = CommandeSerializer(source='IdCommande', read_only=True)
+    class Meta:
+        model = Livraison
+        fields = [
+            'IdLivraison', 'commande', 'IdTransport', 'Statut',
+            'IdEntrepot', 'IdVehicule', 'DatePrevue', 'DateLivraison',
+            'Commentaire', 'DateCreation', 'DateMiseAJour'
+        ]
+
     def update(self, instance, validated_data):
         print("DEBUG update validated_data:", validated_data)
         for attr, value in validated_data.items():

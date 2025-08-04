@@ -35,7 +35,7 @@ from .views.entrepot_views import entrepot_list, entrepot_detail, produit_entrep
 from .views.livraison_views import (
     livraison_list, livraison_detail, commande_livraisons, 
     livraisons_by_statut, update_livraison_status,
-    livraisons_for_stock_manager  
+    livraisons_for_stock_manager, livraison_detail_enriched 
 )
 from .views.health_views import health_check, simple_test,test_celery
 from .views.contact_views import contact_list, contact_detail, contact_marquer_traite
@@ -77,7 +77,7 @@ urlpatterns = [
     path('transport', transport_create, name='transport_create'),
     path('transport/<int:id>/status', transport_update_status, name='transport_update_status'),
     path('transports/role5/', transport_list_role5),
-      path('transports/<int:id>/commentaire/', transport_update_commentaire, name='transport_update_commentaire'),
+    path('transports/<int:id>/commentaire/', transport_update_commentaire, name='transport_update_commentaire'),
 
     # Véhicules routes
     path('vehicules', vehicule_list, name='vehicule_list'),
@@ -119,6 +119,8 @@ urlpatterns = [
     path('commandes/<int:commande_id>/livraisons', commande_livraisons, name='commande_livraisons'),
     path('livraisons/status/<str:statut>', livraisons_by_statut, name='livraisons_by_statut'),
     path('livraisons/<int:pk>/status/<str:statut>', update_livraison_status, name='update_livraison_status'),
+    path('livraisons/<int:pk>/enriched', livraison_detail_enriched, name='livraison_detail_enriched'),
+   
 
     path('contacts/', contact_list, name='contact_list'),
     path('contacts/<int:pk>/', contact_detail, name='contact_detail'),
