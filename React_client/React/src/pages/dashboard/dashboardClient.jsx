@@ -31,6 +31,8 @@ const LivraisonDateCell = ({ livraison, updateLivraisonDate, actionInProgress })
   );
 };
 
+
+
 const DashboardClient = () => {
   const { getToken, user } = useAuth();
   const [devis, setDevis] = useState([]);
@@ -67,6 +69,27 @@ const DashboardClient = () => {
       setDevis([]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const payerCommande = async (commandeId) => {
+    setActionInProgress(true);
+    try {
+      const res = await fetch(`${API_CONFIG.BASE_URL}api/commandes/${commandeId}/payer`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${getToken()}` }
+      });
+      if (res.ok) {
+        setNotification({ type: 'success', message: 'Merci de votre achat !' });
+        fetchCommandes(); // Rafraîchir la liste
+      } else {
+        setNotification({ type: 'error', message: 'Erreur lors du paiement' });
+      }
+    } catch (error) {
+      setNotification({ type: 'error', message: 'Erreur lors du paiement' });
+    } finally {
+      setActionInProgress(false);
+      setTimeout(() => setNotification(null), 3000);
     }
   };
 
@@ -276,6 +299,8 @@ const DashboardClient = () => {
                               Refuser
                             </button>
                           </td>
+
+                          
                         </tr>
                       ))}
                     </tbody>
@@ -314,7 +339,17 @@ const DashboardClient = () => {
                           />
                         </td>
                         <td data-label="Actions">
-                          {/* Actions supplémentaires si nécessaires */}
+                          {cmd.EstPayee === false || cmd.EstPayee === 0 ? (
+                            <button
+                              className="btn-payer-commande"
+                              disabled={actionInProgress}
+                              onClick={() => payerCommande(cmd.IdCommande)}
+                            >
+                              Payer
+                            </button>
+                          ) : (
+                            <span style={{ color: "green", fontWeight: "bold" }}>Payée</span>
+                          )}
                         </td>
                       </tr>
                     );

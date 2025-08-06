@@ -143,7 +143,7 @@ class CommandeSerializer(serializers.ModelSerializer):
         fields = [
             'IdCommande', 'client', 'IdClient', 'DateCommande', 'Statut',
             'MontantTotalHT', 'MontantTotalTTC', 'DateMiseAJour', 'produits',
-            'livraisons'  # <-- AJOUT
+            'livraisons', 'EstPayee'
         ]
         read_only_fields = ['DateCommande', 'DateMiseAJour']
 
