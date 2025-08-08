@@ -42,6 +42,10 @@ class Vehicule(models.Model):
         blank=True
     )
     Immatriculation = models.CharField(max_length=20, verbose_name="Immatriculation", blank=True)
+    NbUtilisation = models.IntegerField(
+        default=0,
+        verbose_name="Nombre d'utilisations"
+    )
     DateCreation = models.DateTimeField(auto_now_add=True)
     DateMiseAJour = models.DateTimeField(auto_now=True)
     

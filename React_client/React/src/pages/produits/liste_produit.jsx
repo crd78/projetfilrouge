@@ -13,6 +13,26 @@ const ListeProduit = () => {
   const [quantites, setQuantites] = useState({});
   const [mouvements, setMouvements] = useState([]);
 
+
+   useEffect(() => {
+    const enregistrerVisite = async () => {
+      try {
+        await fetch(`${API_CONFIG.BASE_URL}api/stats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            page_name: 'liste-produits'
+          })
+        });
+      } catch (error) {
+        console.log('Erreur enregistrement stats:', error);
+      }
+    };
+
+    enregistrerVisite();
+  }, []);
   // Charger le panier depuis le localStorage au démarrage
   useEffect(() => {
     fetch(`${API_CONFIG.BASE_URL}api/stockmouvements`, {

@@ -72,6 +72,30 @@ const DashboardClient = () => {
     }
   };
 
+
+   useEffect(() => {
+    const enregistrerVisite = async () => {
+      try {
+        await fetch(`${API_CONFIG.BASE_URL}api/stats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            page_name: 'dashboard-client',
+            user_id: user?.id
+          })
+        });
+      } catch (error) {
+        console.log('Erreur enregistrement stats:', error);
+      }
+    };
+
+    if (user?.id) {
+      enregistrerVisite();
+    }
+  }, [user?.id]);
+  
   const payerCommande = async (commandeId) => {
     setActionInProgress(true);
     try {

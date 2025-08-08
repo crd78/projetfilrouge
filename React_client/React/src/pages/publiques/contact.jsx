@@ -25,6 +25,27 @@ const Contact = () => {
     });
   };
 
+
+  useEffect(() => {
+    const enregistrerVisite = async () => {
+      try {
+        await fetch(`${API_CONFIG.BASE_URL}api/stats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            page_name: 'contact'
+          })
+        });
+      } catch (error) {
+        console.log('Erreur enregistrement stats:', error);
+      }
+    };
+
+    enregistrerVisite();
+  }, []);
+  
   const envoyerMessage = async (contactData) => {
     try {
       // ❌ ERREUR : Tu utilises BASE_URL + '/contacts/' au lieu de l'endpoint configuré

@@ -5,6 +5,26 @@ import { AuthContext } from "../../context/AuthContext";
 export default function Accueil() {
   const { isLoggedIn, login, logout } = useContext(AuthContext);
 
+  useEffect(() => {
+    const enregistrerVisite = async () => {
+      try {
+        await fetch(`${API_CONFIG.BASE_URL}api/stats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            page_name: 'accueil'
+          })
+        });
+      } catch (error) {
+        console.log('Erreur enregistrement stats:', error);
+      }
+    };
+
+    enregistrerVisite();
+  }, []);
+
   return (
     <div className="accueil-container">
       {/* Bouton de connexion rapide pour test */}

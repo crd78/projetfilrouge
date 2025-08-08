@@ -171,6 +171,7 @@ class VehiculeSerializer(serializers.ModelSerializer):
             'TypeVehicule',
             'Statut',
             'Immatriculation',
+            'NbUtilisation',
             'DateCreation',
             'DateMiseAJour'
         ]
