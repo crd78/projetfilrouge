@@ -54,37 +54,26 @@ const TransportRequestForm = ({ entrepots, vehicules, produits }) => {
   setMessage('');
 
   // Calcul des frais fixes
+  const coutKilometre = 1.25;
+  const distance = Number(form.distance);
   const totalQuantite = form.produits.reduce((acc, p) => acc + Number(p.quantite), 0);
   const fraisFixes = 20 + (2 * totalQuantite);
+  const dateDebutISO = form.dateTransport ? `${form.dateTransport}T00:00:00` : null;
 
-  const coutKilometre = 1.25; // ou laisse saisir si tu veux
-  const distance = Number(form.distance) || 0;
-
-  // Calcul du prix total
-  const prixTotal = (coutKilometre * 50) + fraisFixes + distance;
-
-  const dateDebutISO = form.dateTransport
-    ? `${form.dateTransport}T00:00:00`
-    : null;
+  // Coût affichage (optionnel)
+  const coutEstime = (coutKilometre * distance) + fraisFixes;
 
   const payload = {
-    ...form,
-    camion: form.camion ? Number(form.camion) : null,
-    destination: form.destination ? Number(form.destination) : null,
-    produits: form.produits.map(p => ({
-      id: Number(p.id),
-      quantite: Number(p.quantite)
-    })),
-    CoutKilometre: 0,
-    FraisFixes: 0,
     IdVehicule: form.camion ? Number(form.camion) : null,
-    CoutTotal: 0,
-    Distance: Number(form.distance) || 0,
+    CoutKilometre: coutKilometre,
+    FraisFixes: fraisFixes,
+    Distance: distance,
     DateDebut: dateDebutISO,
-    Commentaire: "Commande fournisseur",
+    Commentaire: "Commande fournisseur"
+    // NE PAS envoyer CoutTotal: calculé backend
   };
 
-  
+  console.log("Payload transport:", payload);
 
   try {
     const res = await fetch(`${API_CONFIG.BASE_URL}api/transport`, {
