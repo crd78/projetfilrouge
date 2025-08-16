@@ -173,28 +173,27 @@ const DashboardClient = () => {
   const accepterDevis = async (devisId) => {
     if (actionInProgress) return;
     setActionInProgress(true);
-
     try {
-      const res = await fetch(`${API_CONFIG.BASE_URL}api/devis/${devisId}/`, {
+      const res = await fetch(`${API_CONFIG.BASE_URL}api/devis/${devisId}/accepter`, {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Authorization': `Bearer ${getToken()}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ Approuver: true })
+        body: JSON.stringify({}) // payload optionnel
       });
 
       if (res.ok) {
-        setNotification({ type: 'success', message: 'Devis accepté avec succès' });
-        fetchDevis();
+        const msg = await res.json();
+        setNotification({ type: 'success', message: 'Acceptation en cours (tâche Celery)...' });
+        // rafraîchir après un court délai
+        setTimeout(() => fetchDevis(), 1200);
       } else {
-        const errorText = await res.text();
-        console.error(`Erreur ${res.status}:`, errorText);
-        setNotification({ type: 'error', message: 'Erreur lors de l\'acceptation du devis' });
+        const t = await res.text();
+        setNotification({ type: 'error', message: `Erreur: ${t}` });
       }
-    } catch (error) {
-      console.error("Erreur lors de l'acceptation du devis:", error);
-      setNotification({ type: 'error', message: 'Erreur lors de l\'acceptation du devis' });
+    } catch (e) {
+      setNotification({ type: 'error', message: 'Erreur lors de l’acceptation' });
     } finally {
       setActionInProgress(false);
       setTimeout(() => setNotification(null), 3000);

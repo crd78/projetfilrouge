@@ -371,42 +371,6 @@ def update_maintenance_task(maintenance_id, data):
             "error": str(e)
         }
 
-@shared_task
-def update_maintenance_status_task(maintenance_id, statut):
-    """
-    Tâche Celery pour mettre à jour le statut d'une maintenance de manière asynchrone
-    """
-    from .models import Maintenance
-    from .serializers import MaintenanceSerializer
-    
-    try:
-        maintenance = Maintenance.objects.get(pk=maintenance_id)
-        maintenance.StatutMaintenance = statut.upper()
-        
-        # Si la maintenance est terminée, mettre à jour la date de fin
-        if statut.upper() == 'TERMINEE' and not maintenance.DateFinMaintenance:
-            maintenance.DateFinMaintenance = datetime.now()
-            
-        maintenance.save()
-        serializer = MaintenanceSerializer(maintenance)
-        
-        return {
-            "success": True,
-            "message": f"Statut de la maintenance {maintenance_id} mis à jour avec succès",
-            "data": serializer.data
-        }
-    except Maintenance.DoesNotExist:
-        return {
-            "success": False,
-            "error": f"Maintenance {maintenance_id} non trouvée"
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
-
-
 
 @shared_task
 def update_maintenance_status_task(maintenance_id, statut):
@@ -599,51 +563,42 @@ def update_devis_task(devis_id, data):
 
 @shared_task
 def accepter_devis_task(devis_id):
-    """
-    Tâche Celery pour accepter un devis et créer une commande
-    """
     from .models import Devis, Commande
-    from .serializers import DevisSerializer, CommandeSerializer
-    
+    from .serializers import DevisSerializer
+
     try:
         devis = Devis.objects.get(pk=devis_id)
-        
-        # Mettre à jour le statut du devis pour indiquer qu'il est accepté
-        devis.Statut = 'ACCEPTE'  # Assurez-vous que ce champ existe dans votre modèle
-        devis.save()
-        
-        # Créer une commande à partir du devis
-        nouvelle_commande = Commande.objects.create(
-            IdClient=devis.IdClient,
-            MontantTotalHT=devis.MontantTotalHT,
-            MontantTotalTTC=devis.MontantTotalTTC,
-            Statut='CREEE',
-            # Autres champs nécessaires selon votre modèle
-        )
-        
-        devis_serializer = DevisSerializer(devis)
-        
+
+        created = False
+        commande = None
+        if not devis.Approuver:
+            devis.Approuver = True
+            devis.save()
+            commande = Commande.objects.create(
+                IdClient=devis.IdClient,
+                MontantTotalHT=devis.MontantTotalHT,
+                MontantTotalTTC=devis.MontantTotalTTC,
+                Statut='CREEE',
+            )
+            created = True
+
         return {
             "success": True,
-            "message": "Devis accepté avec succès",
-            "devis": devis_serializer.data,
-            "commande": {
-                "id": nouvelle_commande.IdCommande,
-                "statut": nouvelle_commande.Statut,
-                "montant_ht": float(nouvelle_commande.MontantTotalHT),
-                "montant_ttc": float(nouvelle_commande.MontantTotalTTC)
-            }
+            "message": f"Devis {devis_id} accepté",
+            "devis": DevisSerializer(devis).data,
+            "commande": (
+                {
+                    "id": commande.IdCommande,
+                    "statut": commande.Statut,
+                    "montant_ht": float(commande.MontantTotalHT),
+                    "montant_ttc": float(commande.MontantTotalTTC),
+                } if created else None
+            ),
         }
     except Devis.DoesNotExist:
-        return {
-            "success": False,
-            "error": f"Devis {devis_id} non trouvé"
-        }
+        return {"success": False, "error": f"Devis {devis_id} non trouvé"}
     except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}
 
 
     

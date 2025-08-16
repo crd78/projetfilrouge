@@ -86,24 +86,15 @@ def devis_list(request):
 
 @api_view(['PUT'])
 def devis_accepter(request, id):
-    """
-    Permet à un boulanger d'accepter un devis validé par le commercial.
-    """
     try:
-        # Vérifie d'abord si le devis existe
         devis = Devis.objects.get(pk=id)
-        
-        # Envoie la tâche à Celery pour traitement asynchrone
         task = accepter_devis_task.delay(id)
-        
-        # Récupère les données actuelles pour la réponse
         current_data = DevisSerializer(devis).data
-        
         return Response({
             "message": f"Traitement de l'acceptation du devis {id} en cours",
             "task_id": task.id,
             "current_data": current_data
-        })
+        }, status=status.HTTP_202_ACCEPTED)  # <-- important
     except Devis.DoesNotExist:
         return Response({"error": "Devis non trouvé"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
