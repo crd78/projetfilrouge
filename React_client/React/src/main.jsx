@@ -12,6 +12,8 @@ import Layout from "./components/Layout";
 import { AuthProvider } from "./context/AuthContext";
 import Produit from './pages/Produit';
 import MdpOublié from "./pages/mdpOublié";
+import Vehicule from './pages/Vehicule';
+import VehiculeHistorique from './pages/VehiculeHistorique';
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -28,6 +30,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="/detail-cmd" element={<Detail />} />
             <Route path="/produit" element={<Produit />} />
             <Route path="/mdp-oublie" element={<MdpOublié />} />
+            <Route path="/vehicule" element={<Vehicule />} />
+            <Route path="/vehicule-historique" element={<VehiculeHistorique />} />
           </Route>
         </Routes>
       </BrowserRouter>

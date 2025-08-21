@@ -1,0 +1,74 @@
+.vehicule-historique-page {
+  background: #fff;
+  min-height: 100vh;
+  padding: 40px 0 0 0;
+}
+
+.vehicule-historique-retour {
+  background: #b0893f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55em 1.6em;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 18px;
+}
+
+.vehicule-historique-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.vehicule-historique-content {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vehicule-historique-table-container {
+  flex: 2;
+}
+
+.vehicule-historique-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fafafd;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.vehicule-historique-table th,
+.vehicule-historique-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e5e5;
+  text-align: left;
+  font-size: 1.08rem;
+}
+
+.vehicule-historique-table th {
+  background: #f2f2f2;
+  font-weight: 600;
+}
+
+.vehicule-historique-table tr:last-child td {
+  border-bottom: none;
+}
+
+.vehicule-historique-side {
+  flex: 1;
+  background: #fafafd;
+  border-radius: 18px;
+  padding: 22px 28px;
+  font-size: 1.08rem;
+  color: #222;
+}
+
+.vehicule-historique-info div {
+  margin-bottom: 10px;
+}
