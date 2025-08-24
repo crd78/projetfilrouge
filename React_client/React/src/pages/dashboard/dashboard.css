@@ -404,10 +404,11 @@
   opacity: 0.4;
 }
 
+/* Wrapper de table: évite le débordement */
 .dashboard-client-table-wrapper {
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .dashboard-client-table {
@@ -624,6 +625,41 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
-  
-  
+
+  /* Mobile: transformer les tables en cartes */
+  @media (max-width: 768px) {
+    .dashboard-client-table thead { display: none; }
+    .dashboard-client-table,
+    .dashboard-client-table tbody,
+    .dashboard-client-table tr,
+    .dashboard-client-table td {
+      display: block;
+      width: 100%;
+    }
+    .dashboard-client-table tr {
+      margin-bottom: 0.75rem;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 0.5rem;
+      background: #fff;
+    }
+    .dashboard-client-table td {
+      padding: 0.5rem 0.75rem;
+      border: 0;
+    }
+    .dashboard-client-table td::before {
+      content: attr(data-label);
+      display: block;
+      font-weight: 600;
+      color: #6c757d;
+      margin-bottom: 2px;
+    }
+
+    /* Grilles/cards des dashboards */
+    .commandes-list,
+    .contacts-list,
+    .actions-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
 }

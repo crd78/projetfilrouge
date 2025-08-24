@@ -47,9 +47,8 @@ body {
 }
 
 .form-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .form-column {
@@ -169,25 +168,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  .contact-box {
-    padding: 2rem;
-    margin: 1rem;
-  }
-  
-  .form-columns {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-  
-  .form-column {
-    gap: 1rem;
-  }
-  
-  .contact-title {
-    font-size: 2rem;
-  }
-  
-  .contact-subtitle {
-    font-size: 1rem;
-  }
+  .form-columns { flex-direction: column; }
+  .form-column { width: 100%; }
+  .form-input, .form-textarea, .form-button { width: 100%; }
 }

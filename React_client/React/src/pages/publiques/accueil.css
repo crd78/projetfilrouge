@@ -124,11 +124,13 @@ html, body {
     font-size: 2rem;
     line-height: 1.2;
   }
-  .header-buttons {
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 100%;
-    align-items: stretch;
+  .header-buttons { display: flex; gap: .75rem; flex-wrap: wrap; }
+  .accueil-image { max-width: 100%; height: auto; display: block; }
+
+  @media (max-width: 768px) {
+    .header { text-align: center; padding: 1rem; }
+    .header-buttons { justify-content: center; }
+    .accueil-container > button { right: 12px; top: 12px; transform: none; }
   }
   .btn-discover,
   .btn-contact {
@@ -136,10 +138,5 @@ html, body {
     font-size: 1rem;
     padding: 0.75rem 0.5rem;
   }
-  .accueil-image {
-    width: 100%;
-    max-height: 180px;
-    border-radius: 30px;
-    margin: 10px auto 1rem auto;
-  }
+
 }
